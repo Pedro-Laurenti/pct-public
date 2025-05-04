@@ -1,10 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { jwtVerify } from "jose";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
 
-// Query helpers to make code more maintainable and concise
+// Query helpers para maior manutenibilidade e concisão do código
 const queries = {
   getUserInfo: "SELECT id, name, email, role FROM Users WHERE id = ?",
   
@@ -179,16 +179,16 @@ const queries = {
   `
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ message: "Method not allowed" });
-  }
-
+export async function GET(request: NextRequest) {
   try {
     // Autenticação e extração de dados do token
-    const token = req.cookies.auth_token;
+    const token = request.cookies.get("auth_token")?.value;
+    
     if (!token) {
-      return res.status(401).json({ message: "Não autenticado" });
+      return NextResponse.json(
+        { message: "Não autenticado" },
+        { status: 401 }
+      );
     }
 
     const { payload } = await jwtVerify(token, SECRET_KEY);
@@ -212,7 +212,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ]);
 
     if (userRows.length === 0) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+      return NextResponse.json(
+        { message: "Usuário não encontrado" },
+        { status: 404 }
+      );
     }
 
     const user = userRows[0];
@@ -298,7 +301,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : 0;
 
     // Retornar todos os dados coletados
-    res.status(200).json({
+    return NextResponse.json({
       user,
       courses: coursesWithLessons,
       pendingActivities: pendingActivitiesRows,
@@ -314,6 +317,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
   } catch (error) {
     console.error('Dashboard API Error:', error);
-    res.status(500).json({ message: "Erro interno do servidor" });
+    return NextResponse.json(
+      { message: "Erro interno do servidor" },
+      { status: 500 }
+    );
   }
 }

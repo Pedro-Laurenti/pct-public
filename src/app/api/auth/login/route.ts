@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { SignJWT } from "jose";
-import { serialize } from "cookie";
+import { cookies } from "next/headers";
 import { subtle } from "crypto";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
@@ -18,21 +18,17 @@ async function verifyPassword(inputPassword: string, storedHash: string): Promis
   return inputHashHex === storedHash;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
-  }
-
-  const { email, password } = req.body;
-
+export async function POST(request: NextRequest) {
   try {
+    const { email, password } = await request.json();
+
     const [rows]: any = await pool.query(
       "SELECT id, role, password_hash FROM Users WHERE email = ?",
       [email]
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
 
     const user = rows[0];
@@ -40,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Verify password securely
     const isPasswordValid = await verifyPassword(password, user.password_hash);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Generate a JWT token
@@ -49,21 +45,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .setExpirationTime("2h")
       .sign(SECRET_KEY);
 
-    // Set cookie
-    res.setHeader(
-      "Set-Cookie",
-      serialize("auth_token", sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
-        maxAge: 2 * 60 * 60, // 2 hours
-      })
+    // Set cookie in the response
+    const response = NextResponse.json(
+      { message: "Login successful" },
+      { status: 200 }
     );
 
-    res.status(200).json({ message: "Login successful" });
+    // Set cookie using the cookies() API from next/headers
+    response.cookies.set({
+      name: "auth_token",
+      value: sessionToken,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 2 * 60 * 60, // 2 hours
+    });
+
+    return response;
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

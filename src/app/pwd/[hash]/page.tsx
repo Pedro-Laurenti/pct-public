@@ -116,17 +116,21 @@ export default function ResetPasswordPage() {
 
   if (!validHash && !message?.text.includes('verificar')) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <h1 className="text-2xl font-semibold text-center mb-6">Link inválido ou expirado</h1>
-          <p className="text-center mb-4">O link de redefinição de senha é inválido ou expirou.</p>
-          <div className="flex justify-center">
-            <button
-              onClick={() => router.push('/')}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Voltar para o início
-            </button>
+      <div className="hero min-h-screen bg-base-200">
+        <div className="hero-content text-center">
+          <div className="card w-full max-w-md bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h1 className="card-title text-2xl justify-center mb-4">Link inválido ou expirado</h1>
+              <p className="mb-6">O link de redefinição de senha é inválido ou expirou.</p>
+              <div className="card-actions justify-center">
+                <button
+                  onClick={() => router.push('/')}
+                  className="btn btn-primary w-full"
+                >
+                  Voltar para o início
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -134,91 +138,101 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        <h1 className="text-2xl font-semibold text-center mb-6">
-          {step === 'token' ? 'Verificação de Segurança' : 'Defina uma Nova Senha'}
-        </h1>
+    <div className="hero min-h-screen bg-base-200">
+      <div className="hero-content flex-col">
+        <div className="card w-full max-w-md bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h1 className="card-title text-2xl justify-center mb-4">
+              {step === 'token' ? 'Verificação de Segurança' : 'Defina uma Nova Senha'}
+            </h1>
 
-        {message && (
-          <Alert type={message.type} message={message.text} onClose={() => setMessage(null)} />
-        )}
+            {message && (
+              <Alert type={message.type} message={message.text} onClose={() => setMessage(null)} />
+            )}
 
-        {step === 'token' && (
-          <form onSubmit={validateToken}>
-            <div className="mb-4">
-              <label htmlFor="token" className="block mb-2 text-sm font-medium">
-                Digite o código de 6 dígitos enviado para seu e-mail
-              </label>
-              <input
-                id="token"
-                type="text"
-                value={token}
-                onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-                placeholder="Digite o código de 6 dígitos"
-                maxLength={6}
-                required
-              />
+            {step === 'token' && (
+              <form onSubmit={validateToken}>
+                <div className="form-control mb-4">
+                  <label className="label">
+                    <span className="label-text mb-2">Digite o código de 6 dígitos enviado para seu e-mail</span>
+                  </label>
+                  <input
+                    id="token"
+                    type="text"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="input input-bordered w-full"
+                    placeholder="Código de 6 dígitos"
+                    maxLength={6}
+                    required
+                  />
+                </div>
+                <div className="form-control mt-6">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn btn-primary w-full"
+                  >
+                    {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Verificar Código'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {step === 'password' && (
+              <form onSubmit={resetPassword}>
+                <div className="form-control mb-4">
+                  <label className="label">
+                    <span className="label-text">Nova senha</span>
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input input-bordered w-full"
+                    placeholder="Digite sua nova senha"
+                    required
+                    minLength={8}
+                  />
+                </div>
+                <div className="form-control mb-6">
+                  <label className="label">
+                    <span className="label-text">Confirme a senha</span>
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input input-bordered w-full"
+                    placeholder="Confirme sua nova senha"
+                    required
+                  />
+                </div>
+                <div className="form-control mt-6">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn btn-primary w-full"
+                  >
+                    {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Redefinir Senha'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="divider mt-4"></div>
+            
+            <div className="text-center">
+              <button
+                onClick={() => router.push('/')}
+                className="btn btn-link"
+              >
+                Voltar para o início
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Verificando...' : 'Verificar Código'}
-            </button>
-          </form>
-        )}
-
-        {step === 'password' && (
-          <form onSubmit={resetPassword}>
-            <div className="mb-4">
-              <label htmlFor="password" className="block mb-2 text-sm font-medium">
-                Nova senha
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-                placeholder="Digite sua nova senha"
-                required
-                minLength={8}
-              />
-            </div>
-            <div className="mb-6">
-              <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium">
-                Confirme a senha
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-                placeholder="Confirme sua nova senha"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Processando...' : 'Redefinir Senha'}
-            </button>
-          </form>
-        )}
-
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Voltar para o início
-          </button>
+          </div>
         </div>
       </div>
     </div>

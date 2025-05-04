@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { subtle } from "crypto";
 
@@ -15,31 +15,34 @@ async function hashPassword(password: string): Promise<string> {
   return hashHex;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Esse endpoint só aceita requisições POST
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-  }
-
-  const { hash, token, password } = req.body;
-
-  // Validar parâmetros
-  if (!hash || !token || !password) {
-    return res.status(400).json({ message: "Todos os campos são obrigatórios" });
-  }
-
-  // Validar formato do token (6 dígitos)
-  if (!/^\d{6}$/.test(token)) {
-    return res.status(400).json({ message: "Formato de token inválido" });
-  }
-
-  // Validar tamanho da senha
-  if (password.length < 8) {
-    return res.status(400).json({ message: "A senha deve ter pelo menos 8 caracteres" });
-  }
-
+export async function POST(request: NextRequest) {
   try {
+    const { hash, token, password } = await request.json();
+
+    // Validar parâmetros
+    if (!hash || !token || !password) {
+      return NextResponse.json(
+        { message: "Todos os campos são obrigatórios" }, 
+        { status: 400 }
+      );
+    }
+
+    // Validar formato do token (6 dígitos)
+    if (!/^\d{6}$/.test(token)) {
+      return NextResponse.json(
+        { message: "Formato de token inválido" }, 
+        { status: 400 }
+      );
+    }
+
+    // Validar tamanho da senha
+    if (password.length < 8) {
+      return NextResponse.json(
+        { message: "A senha deve ter pelo menos 8 caracteres" }, 
+        { status: 400 }
+      );
+    }
+
     // Buscar o token e informações do usuário associado
     const [tokens]: any = await pool.query(
       `SELECT prt.*, u.id AS user_id 
@@ -50,7 +53,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (tokens.length === 0) {
-      return res.status(400).json({ message: "Link ou código inválido ou expirado" });
+      return NextResponse.json(
+        { message: "Link ou código inválido ou expirado" }, 
+        { status: 400 }
+      );
     }
 
     const resetToken = tokens[0];
@@ -70,9 +76,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       [resetToken.user_id]
     );
 
-    return res.status(200).json({ message: "Senha definida com sucesso! Você já pode fazer login." });
+    return NextResponse.json(
+      { message: "Senha definida com sucesso! Você já pode fazer login." }, 
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Erro na redefinição de senha:", error);
-    return res.status(500).json({ message: "Erro interno do servidor" });
+    return NextResponse.json(
+      { message: "Erro interno do servidor" }, 
+      { status: 500 }
+    );
   }
 }

@@ -268,9 +268,6 @@ export default function ReunionsPage() {
         {/* Cabeçalho principal */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Calendário de Reuniões</h1>
-          <Link href="/dashboard/contents/new" className="btn btn-primary btn-sm md:btn-md flex items-center gap-2">
-            <FaPlus /> Nova Reunião
-          </Link>
         </div>
 
         {/* Barra de controles do calendário */}
@@ -336,13 +333,13 @@ export default function ReunionsPage() {
               ref={timelineRef}
               className="absolute left-0 right-0 z-10 pointer-events-none" 
               style={{
-                top: `calc(${currentTime.getHours() * 59.3}px + ${currentTime.getMinutes()}px)`,
+                top: `calc(60px + (${currentTime.getHours()} * 56px) + (${currentTime.getMinutes()} / 60 * 56px))`,
               }}
             >
               <div className="flex items-center w-full">
                 <div className="w-20 pr-2 text-right">
                   <span className="text-xs font-medium text-error bg-base-100 px-1 py-0.5 rounded shadow-sm">
-                    {`${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}`}
+                    {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </span>
                 </div>
                 <div className="h-[2px] bg-error flex-grow" />
@@ -397,7 +394,7 @@ export default function ReunionsPage() {
                                 <div 
                                   key={reunion.id} 
                                   className="p-1.5 px-2 bg-primary text-primary-content rounded text-xs shadow-sm
-                                    whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer hover:shadow-md transition-all"
+                                    w-full block overflow-hidden text-ellipsis cursor-pointer hover:shadow-md transition-all"
                                   title={`${reunion.reunion_title} (${formatTime(reunion.scheduled_time)} - ${reunion.duration_minutes} min)`}
                                   onClick={() => {
                                     setSelectedDate(dayInfo.dateString);
@@ -406,7 +403,7 @@ export default function ReunionsPage() {
                                   }}
                                 >
                                   <div className="flex items-center gap-1">
-                                    <span className="font-bold">{formatTime(reunion.scheduled_time)}</span>
+                                    <span className="font-bold whitespace-nowrap">{formatTime(reunion.scheduled_time)}</span>
                                     <span className="truncate"> | {reunion.reunion_title}</span>
                                   </div>
                                 </div>
@@ -560,13 +557,6 @@ export default function ReunionsPage() {
                             <FaExternalLinkAlt />
                           </a>
                         )}
-                        <Link
-                          href={`/dashboard/contents/${reunion.lesson_content_id}/reunion`}
-                          className="btn btn-sm btn-square btn-secondary"
-                          title="Editar reunião"
-                        >
-                          <FaEdit />
-                        </Link>
                       </div>
                     </div>
                   </div>
@@ -574,15 +564,10 @@ export default function ReunionsPage() {
               ))}
             </div>
           )}
-          
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Fechar</button>
-            </form>
-          </div>
+        
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button>fechar</button>
+          <button></button>
         </form>
       </dialog>
     </div>
