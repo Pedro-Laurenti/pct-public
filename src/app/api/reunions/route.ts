@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 // Chave secreta para verificar o token JWT
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
@@ -8,7 +9,8 @@ const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_s
 export async function GET(request: NextRequest) {
   try {
     // Autenticação e extração de dados do token
-    const token = request.cookies.get("auth_token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
     
     if (!token) {
       return NextResponse.json(
@@ -86,7 +88,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Autenticação e extração de dados do token
-    const token = request.cookies.get("auth_token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
     
     if (!token) {
       return NextResponse.json(
@@ -143,7 +146,8 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Autenticação e extração de dados do token
-    const token = request.cookies.get("auth_token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
     
     if (!token) {
       return NextResponse.json(
@@ -199,7 +203,8 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Autenticação e extração de dados do token
-    const token = request.cookies.get("auth_token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
     
     if (!token) {
       return NextResponse.json(

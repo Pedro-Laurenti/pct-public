@@ -1,30 +1,34 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from 'next/server';
 import pool from "@/lib/db";
 import { jwtVerify } from "jose";
+import { cookies } from 'next/headers';
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Apenas método POST é permitido
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-  }
-
+export async function POST(request: NextRequest) {
+  // Get route parameters from URL
+  const url = new URL(request.url);
+  const pathSegments = url.pathname.split('/');
+  const lessonId = pathSegments[pathSegments.indexOf('lessons') + 1];
+  const contentId = pathSegments[pathSegments.indexOf(lessonId) + 1];
+  
   // Autenticação e extração de dados do token
-  const token = req.cookies.auth_token;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
   if (!token) {
-    return res.status(401).json({ message: "Não autenticado" });
+    return NextResponse.json({ message: "Não autenticado" }, { status: 401 });
   }
 
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     const userId = payload.userId as number;
-    const { id: lessonId, contentId } = req.query;
-    const { statement_id, option_id } = req.body;
+    
+    // Get request body
+    const body = await request.json();
+    const { statement_id, option_id } = body;
 
     if (!lessonId || !contentId || !statement_id || !option_id) {
-      return res.status(400).json({ message: "Parâmetros insuficientes" });
+      return NextResponse.json({ message: "Parâmetros insuficientes" }, { status: 400 });
     }
 
     // Verificar se o usuário tem acesso a este conteúdo
@@ -40,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (!hasAccess || hasAccess.length === 0) {
-      return res.status(403).json({ message: "Você não tem acesso a esta atividade" });
+      return NextResponse.json({ message: "Você não tem acesso a esta atividade" }, { status: 403 });
     }
 
     // Verificar se o enunciado pertence a esta atividade
@@ -52,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (!validStatement || validStatement.length === 0) {
-      return res.status(400).json({ message: "Enunciado inválido para esta atividade" });
+      return NextResponse.json({ message: "Enunciado inválido para esta atividade" }, { status: 400 });
     }
 
     // Verificar se a opção pertence ao enunciado
@@ -64,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (!optionCheck || optionCheck.length === 0) {
-      return res.status(400).json({ message: "Opção inválida para este enunciado" });
+      return NextResponse.json({ message: "Opção inválida para este enunciado" }, { status: 400 });
     }
 
     const isCorrect = optionCheck[0].is_correct === 1;
@@ -114,12 +118,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const allCompleted = totalStatements[0].total === answeredStatements[0].answered;
 
-    return res.status(200).json({
+    return NextResponse.json({
       correct: isCorrect,
       completed: allCompleted
     });
   } catch (error) {
     console.error('Activity Answer API Error:', error);
-    return res.status(500).json({ message: "Erro interno do servidor" });
+    return NextResponse.json({ message: "Erro interno do servidor" }, { status: 500 });
   }
 }

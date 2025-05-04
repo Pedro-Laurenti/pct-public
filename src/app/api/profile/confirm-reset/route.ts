@@ -1,7 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from 'next/server';
 import pool from "@/lib/db";
 import { jwtVerify } from "jose";
 import { subtle } from "crypto";
+import { cookies } from 'next/headers';
 
 // Chave secreta para verificar o token JWT
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
@@ -19,34 +20,31 @@ async function hashPassword(password: string): Promise<string> {
   return hashHex;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Esse endpoint só aceita requisições POST
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-  }
-
+export async function POST(request: NextRequest) {
   // Verificar se o usuário está autenticado
-  const jwtToken = req.cookies.auth_token;
+  const cookieStore = await cookies();
+  const jwtToken = cookieStore.get('auth_token')?.value;
   if (!jwtToken) {
-    return res.status(401).json({ message: "Não autenticado" });
+    return NextResponse.json({ message: "Não autenticado" }, { status: 401 });
   }
 
-  const { token, newPassword } = req.body;
+  // Get request body
+  const body = await request.json();
+  const { token, newPassword } = body;
 
   // Validar parâmetros
   if (!token || !newPassword) {
-    return res.status(400).json({ message: "Token e nova senha são obrigatórios" });
+    return NextResponse.json({ message: "Token e nova senha são obrigatórios" }, { status: 400 });
   }
 
   // Validar formato do token (6 dígitos)
   if (!/^\d{6}$/.test(token)) {
-    return res.status(400).json({ message: "Formato de token inválido" });
+    return NextResponse.json({ message: "Formato de token inválido" }, { status: 400 });
   }
 
   // Validar tamanho da senha
   if (newPassword.length < 8) {
-    return res.status(400).json({ message: "A senha deve ter pelo menos 8 caracteres" });
+    return NextResponse.json({ message: "A senha deve ter pelo menos 8 caracteres" }, { status: 400 });
   }
 
   try {
@@ -62,9 +60,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (resetTokens.length === 0) {
-      return res.status(400).json({ 
+      return NextResponse.json({ 
         message: "Token inválido ou expirado. Solicite um novo código de redefinição."
-      });
+      }, { status: 400 });
     }
 
     // Gerar hash da nova senha usando SHA-256 (o mesmo método do login.ts)
@@ -82,12 +80,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       [userId]
     );
 
-    return res.status(200).json({ 
+    return NextResponse.json({ 
       message: "Senha atualizada com sucesso"
     });
 
   } catch (error) {
     console.error("Erro na confirmação de redefinição de senha:", error);
-    return res.status(500).json({ message: "Erro interno do servidor" });
+    return NextResponse.json({ message: "Erro interno do servidor" }, { status: 500 });
   }
 }

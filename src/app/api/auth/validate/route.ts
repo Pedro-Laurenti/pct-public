@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from 'next/headers';
 import { jwtVerify } from "jose";
 import pool from "@/lib/db";
 
@@ -6,7 +7,9 @@ const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_s
 
 export async function GET(request: NextRequest) {
   // Obter o token do cookie
-  const token = request.cookies.get("auth_token")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
+
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

@@ -1,8 +1,9 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from 'next/server';
 import pool from "@/lib/db";
 import { jwtVerify } from "jose";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { cookies } from 'next/headers';
 
 // Chave secreta para verificar o token JWT
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
@@ -18,17 +19,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Esse endpoint só aceita requisições POST
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-  }
-
+export async function POST(request: NextRequest) {
   // Verificar se o usuário está autenticado
-  const token = req.cookies.auth_token;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
   if (!token) {
-    return res.status(401).json({ message: "Não autenticado" });
+    return NextResponse.json({ message: "Não autenticado" }, { status: 401 });
   }
 
   try {
@@ -43,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (users.length === 0) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+      return NextResponse.json({ message: "Usuário não encontrado" }, { status: 404 });
     }
     
     const user = users[0];
@@ -92,12 +88,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Enviar e-mail
     await transporter.sendMail(mailOptions);
     
-    return res.status(200).json({ 
+    return NextResponse.json({ 
       message: "Código de redefinição de senha enviado para seu email"
     });
     
   } catch (error) {
     console.error("Erro na solicitação de redefinição de senha:", error);
-    return res.status(500).json({ message: "Erro interno do servidor" });
+    return NextResponse.json({ message: "Erro interno do servidor" }, { status: 500 });
   }
 }

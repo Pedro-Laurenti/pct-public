@@ -1,29 +1,30 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from 'next/server';
 import pool from "@/lib/db";
 import { jwtVerify } from "jose";
+import { cookies } from 'next/headers';
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Apenas método GET é permitido
-  if (req.method !== "GET") {
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-  }
-
+export async function GET(request: NextRequest) {
+  // Get route parameters from URL
+  const url = new URL(request.url);
+  const pathSegments = url.pathname.split('/');
+  const lessonId = pathSegments[pathSegments.indexOf('lessons') + 1];
+  const contentId = pathSegments[pathSegments.indexOf(lessonId) + 1];
+  
   // Autenticação e extração de dados do token
-  const token = req.cookies.auth_token;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
   if (!token) {
-    return res.status(401).json({ message: "Não autenticado" });
+    return NextResponse.json({ message: "Não autenticado" }, { status: 401 });
   }
 
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     const userId = payload.userId as number;
-    const { id: lessonId, contentId } = req.query;
 
     if (!lessonId || !contentId) {
-      return res.status(400).json({ message: "Parâmetros insuficientes" });
+      return NextResponse.json({ message: "Parâmetros insuficientes" }, { status: 400 });
     }
 
     // Verificar se o usuário tem acesso a este conteúdo
@@ -39,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (!hasAccess || hasAccess.length === 0) {
-      return res.status(403).json({ message: "Você não tem acesso a este conteúdo ou o tipo de conteúdo não é reunião" });
+      return NextResponse.json({ message: "Você não tem acesso a este conteúdo ou o tipo de conteúdo não é reunião" }, { status: 403 });
     }
 
     // Obter informações da aula para o breadcrumb
@@ -62,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (contentRows.length === 0) {
-      return res.status(404).json({ message: "Conteúdo de reunião não encontrado" });
+      return NextResponse.json({ message: "Conteúdo de reunião não encontrado" }, { status: 404 });
     }
 
     // Obter todos os agendamentos para esta reunião
@@ -77,12 +78,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Adicionar os agendamentos ao objeto de conteúdo
     contentRows[0].schedule = schedulesRows;
 
-    return res.status(200).json({
+    return NextResponse.json({
       lesson: lessonRows[0],
       content: contentRows[0]
     });
   } catch (error) {
     console.error('Reunion Content API Error:', error);
-    return res.status(500).json({ message: "Erro interno do servidor" });
+    return NextResponse.json({ message: "Erro interno do servidor" }, { status: 500 });
   }
 }
