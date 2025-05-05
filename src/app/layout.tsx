@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant } from "next/font/google"; // Fonte serif elegante para títulos no estilo grego
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,9 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const cormorant = Cormorant({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Login • Psicologia Católica Tomista",
-  description: "Bem-vindo ao site oficial da Psicologia Católica Tomista, onde você encontra informações e recursos sobre a integração da psicologia com os princípios da filosofia tomista.",
+  title: "Psicologia Católica Tomista",
+  description: "Portal oficial da Psicologia Católica Tomista, onde você encontra recursos sobre a integração da psicologia com os princípios da filosofia tomista.",
 };
 
 export default function RootLayout({
@@ -25,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" data-theme="mydark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} antialiased`}
       >
         {children}
       </body>
