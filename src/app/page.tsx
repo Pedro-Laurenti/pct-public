@@ -47,37 +47,34 @@ export default function LandingPage() {
             <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
             <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de São Tomás de Aquino</p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
-              <figure className="px-6 pt-6">
-                <div className="h-48 w-full bg-[url('/images/vision.jpg')] bg-cover bg-center rounded-xl"></div>
-              </figure>
-              <div className="card-body items-center text-center">
-                <h3 className="card-title font-serif text-primary">Visão Integral</h3>
-                <p className="text-sm">Unidade substancial de corpo e alma, considerando todas as dimensões da pessoa humana.</p>
+            <div className="grid md:grid-cols-3 gap-8 mt-16">
+            {[
+              {
+                image: 'vision.jpg',
+                title: 'Visão Integral',
+                description: 'Unidade substancial de corpo e alma, considerando todas as dimensões da pessoa humana.'
+              },
+              {
+                image: 'method.jpg',
+                title: 'Método Eficaz',
+                description: 'Ordenamento das potências da alma para alcançar a perfeição cristã e a verdadeira felicidade.'
+              },
+              {
+                image: 'mentorship.jpg',
+                title: 'Mentoria Contínua',
+                description: 'Acompanhamento personalizado com acesso vitalício às aulas e materiais de formação.'
+              }
+            ].map((card, index) => (
+              <div key={index} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
+                <figure className="px-6 pt-6">
+                  <div className={`h-48 w-full bg-[url('/images/${card.image}')] bg-cover bg-center rounded-xl`}></div>
+                </figure>
+                <div className="card-body items-center text-center">
+                  <h3 className="card-title font-serif text-primary">{card.title}</h3>
+                  <p className="text-sm">{card.description}</p>
+                </div>
               </div>
-            </div>
-
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
-              <figure className="px-6 pt-6">
-                <div className="h-48 w-full bg-[url('/images/method.jpg')] bg-cover bg-center rounded-xl"></div>
-              </figure>
-              <div className="card-body items-center text-center">
-                <h3 className="card-title font-serif text-primary">Método Eficaz</h3>
-                <p className="text-sm">Ordenamento das potências da alma para alcançar a perfeição cristã e a verdadeira felicidade.</p>
-              </div>
-            </div>
-
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
-              <figure className="px-6 pt-6">
-                <div className="h-48 w-full bg-[url('/images/mentorship.jpg')] bg-cover bg-center rounded-xl"></div>
-              </figure>
-              <div className="card-body items-center text-center">
-                <h3 className="card-title font-serif text-primary">Mentoria Contínua</h3>
-                <p className="text-sm">Acompanhamento personalizado com acesso vitalício às aulas e materiais de formação.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -96,31 +93,32 @@ export default function LandingPage() {
             <div className="md:w-1/2">
               <h2 className="text-4xl font-serif mb-6">Programa de <span className="text-primary">Mentoria</span></h2>
               <div className="divider mb-6"></div>
-              
-              <div className="space-y-6">                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <HiAcademicCap className="w-6 h-6 text-primary" />
+                <div className="space-y-6">
+                {[
+                  { 
+                    icon: <HiAcademicCap className="w-6 h-6 text-primary" />, 
+                    text: "Seis encontros por módulo com interação e tirada de dúvidas ao vivo" 
+                  },
+                  { 
+                    icon: <HiClock className="w-6 h-6 text-primary" />, 
+                    text: "Temas cuidadosamente selecionados para iluminar a inteligência e orientar a vontade" 
+                  },
+                  { 
+                    icon: <HiCheckCircle className="w-6 h-6 text-primary" />, 
+                    text: "Aplicável para qualquer pessoa com desejo de autodesenvolvimento integral" 
+                  },
+                  { 
+                    icon: <HiHeart className="w-6 h-6 text-primary" />, 
+                    text: "Ferramenta para viver de forma plena e feliz mesmo em meio às dificuldades da vida" 
+                  }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <p className="font-medium">{item.text}</p>
                   </div>
-                  <p className="font-medium">Seis encontros por módulo com interação e tirada de dúvidas ao vivo</p>
-                </div>
-                  <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <HiClock className="w-6 h-6 text-primary" />
-                  </div>
-                  <p className="font-medium">Temas cuidadosamente selecionados para iluminar a inteligência e orientar a vontade</p>
-                </div>
-                  <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <HiCheckCircle className="w-6 h-6 text-primary" />
-                  </div>
-                  <p className="font-medium">Aplicável para qualquer pessoa com desejo de autodesenvolvimento integral</p>
-                </div>
-                  <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <HiHeart className="w-6 h-6 text-primary" />
-                  </div>
-                  <p className="font-medium">Ferramenta para viver de forma plena e feliz mesmo em meio às dificuldades da vida</p>
-                </div>
+                ))}
               </div>
                 <div className="mt-8">
                 <a href="https://wa.me/5562821377" className="btn btn-primary">
@@ -147,36 +145,31 @@ export default function LandingPage() {
               <blockquote className="italic text-xl mb-8 border-l-4 border-primary pl-4 py-2">
                 "A perfeição cristã nada mais é do que ser o que Deus quer que sejamos."
               </blockquote>
-              
-              <div className="space-y-6">                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-primary text-white rounded-lg mt-1">
-                    <HiCheck className="w-6 h-6" />
+                <div className="space-y-6">
+                {[
+                  {
+                    title: "Iluminação da Inteligência",
+                    description: "Desenvolvimento da capacidade de discernimento e compreensão da realidade."
+                  },
+                  {
+                    title: "Fortalecimento da Vontade",
+                    description: "Disciplina interior para buscar o bem verdadeiro e perseverar no caminho virtuoso."
+                  },
+                  {
+                    title: "Transformação Interior",
+                    description: "Crescimento pessoal através do cultivo sistemático das virtudes cardeais e teologais."
+                  }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start gap-4">
+                    <div className="p-3 bg-primary text-white rounded-lg mt-1">
+                      <HiCheck className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">{item.title}</h3>
+                      <p className="text-sm opacity-75">{item.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Iluminação da Inteligência</h3>
-                    <p className="text-sm opacity-75">Desenvolvimento da capacidade de discernimento e compreensão da realidade.</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-primary text-white rounded-lg mt-1">
-                    <HiCheck className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Fortalecimento da Vontade</h3>
-                    <p className="text-sm opacity-75">Disciplina interior para buscar o bem verdadeiro e perseverar no caminho virtuoso.</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-primary text-white rounded-lg mt-1">
-                    <HiCheck className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Transformação Interior</h3>
-                    <p className="text-sm opacity-75">Crescimento pessoal através do cultivo sistemático das virtudes cardeais e teologais.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
             
@@ -236,21 +229,18 @@ export default function LandingPage() {
                 <p className="mb-6 italic border-l-4 border-primary/30 pl-4 py-1">
                   "Este trabalho é tanto um apostolado quanto um modo de fazer o bem, de retribuir um pouco a graça 
                   de poder conhecer e trabalhar com a Psicologia Tomista."
-                </p>
-                  <ul className="space-y-2 mb-6">
-                  <li className="flex items-center gap-2">
-                    <HiCheckCircle className="h-5 w-5 text-primary" />
-                    <span>Especialista em Bioética</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <HiCheckCircle className="h-5 w-5 text-primary" />
-                    <span>10 anos de dedicação à Psicologia Tomista</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <HiCheckCircle className="h-5 w-5 text-primary" />
-                    <span>Mentora especializada no desenvolvimento das potências da alma</span>
-                  </li>
-                </ul>                <div className="flex items-center gap-3">
+                </p>                <ul className="space-y-2 mb-6">
+                  {[
+                    "Especialista em Bioética",
+                    "10 anos de dedicação à Psicologia Tomista",
+                    "Mentora especializada no desenvolvimento das potências da alma"
+                  ].map((qualification, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <HiCheckCircle className="h-5 w-5 text-primary" />
+                      <span>{qualification}</span>
+                    </li>
+                  ))}
+                </ul><div className="flex items-center gap-3">
                   <a href="https://wa.me/5562821377" className="btn btn-primary btn-sm gap-2">
                     <BsWhatsapp size={16} />
                     Faça parte
@@ -272,25 +262,19 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="md:w-2/3">
                 <h2 className="text-4xl font-serif mb-6">Investimento para sua <span className="text-primary">Formação Integral</span></h2>
-                
-                <div className="flex items-center gap-6 mb-6">                  <div className="text-center">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
-                      <HiTicket className="w-10 h-10" />
+                  <div className="flex items-center gap-6 mb-6">
+                  {[
+                    { icon: <HiTicket className="w-10 h-10" />, text: "Acesso<br/>Vitalício" },
+                    { icon: <HiDocument className="w-10 h-10" />, text: "Módulos<br/>Contínuos" },
+                    { icon: <HiQuestionMarkCircle className="w-10 h-10" />, text: "Dúvidas<br/>Ao Vivo" }
+                  ].map((item, index) => (
+                    <div key={index} className="text-center">
+                      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                        {item.icon}
+                      </div>
+                      <p className="font-semibold text-sm" dangerouslySetInnerHTML={{ __html: item.text }}></p>
                     </div>
-                    <p className="font-semibold text-sm">Acesso<br/>Vitalício</p>
-                  </div>
-                    <div className="text-center">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
-                      <HiDocument className="w-10 h-10" />
-                    </div>
-                    <p className="font-semibold text-sm">Módulos<br/>Contínuos</p>
-                  </div>
-                    <div className="text-center">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
-                      <HiQuestionMarkCircle className="w-10 h-10" />
-                    </div>
-                    <p className="font-semibold text-sm">Dúvidas<br/>Ao Vivo</p>
-                  </div>
+                  ))}
                 </div>
                 
                 <p className="text-sm mb-6">Possibilidade de parcelamento via PIX. Entre em contato para saber mais.</p>
