@@ -214,7 +214,7 @@ export default function LandingPage() {
           </div>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-            <div className="md:w-1/3">
+            <div className="md:w-1/3 w-full">
               <div className="relative">
                 <div className="w-full h-80 bg-[url('/images/liliane-lopes.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
                 <div className="absolute -bottom-4 -right-4 bg-primary text-white p-3 rounded-lg shadow-lg">
