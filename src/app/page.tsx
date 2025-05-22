@@ -1,6 +1,13 @@
 import Header from "@/components/header";
 import { BsYoutube, BsWhatsapp, BsInstagram } from "react-icons/bs";
 import { HiAcademicCap, HiClock, HiCheck, HiCheckCircle, HiHeart, HiTicket, HiDocument, HiQuestionMarkCircle } from "react-icons/hi";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Psicologia Católica Tradicional | Visão Tomista da Alma Humana",
+  description: "Resgatando a sabedoria perene da psicologia tomista para o ordenamento da alma humana. Mentoria, cursos e formação na tradicional visão católica da pessoa.",
+  keywords: "psicologia católica, psicologia tomista, são tomás de aquino, mentoria católica, desenvolvimento integral, alma humana",
+};
 
 export default function LandingPage() {
   return (
