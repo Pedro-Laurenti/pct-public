@@ -46,7 +46,25 @@ export default function ReunionsPage() {
   
   // Referência para calcular a posição da agulha de tempo
   const timelineRef = useRef<HTMLDivElement>(null);
+  
+  // Estado para controlar a largura da tela (para responsividade)
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
+  // Detecta tamanho da tela para responsividade
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Checa inicialmente
+    checkIfMobile();
+    
+    // Adiciona listener para quando o tamanho da tela mudar
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Limpa o listener quando o componente for desmontado
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
   // Atualiza a hora atual a cada minuto para mover a agulha de tempo
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -58,6 +76,24 @@ export default function ReunionsPage() {
     
     return () => clearInterval(intervalId);
   }, []);
+
+  // Função para agrupar reuniões por dia da semana
+  const getReunionsByDay = () => {
+    const days = getDaysInWeek();
+    const reunionsByDay = days.map(day => ({
+      date: day.date,
+      dateString: day.dateString,
+      isToday: day.isToday,
+      dayName: weekdayNames[day.date.getDay()],
+      dayNumber: day.date.getDate(),
+      month: day.date.getMonth() + 1,
+      reunions: day.reunions.sort((a, b) => 
+        a.scheduled_time.localeCompare(b.scheduled_time)
+      )
+    }));
+    
+    return reunionsByDay;
+  };
 
   // Buscar reuniões para o mês/ano ou semana atual
   useEffect(() => {
@@ -253,9 +289,8 @@ export default function ReunionsPage() {
   if (loading || error) {
     return <LoadingOrError loading={loading} error={error} />;
   }
-
   return (
-    <div className="p-6 space-y-6 flex flex-col h-screen overflow-hidden">
+    <div className="p-2 md:p-6 space-y-4 md:space-y-6 flex flex-col h-screen overflow-hidden">
       {alert && (
         <Alert
           type={alert.type}
@@ -264,18 +299,18 @@ export default function ReunionsPage() {
         />
       )}
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2 md:gap-4">
         {/* Cabeçalho principal */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Calendário de Reuniões</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Calendário de Reuniões</h1>
         </div>
 
         {/* Barra de controles do calendário */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-base-200 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 p-2 md:p-4 bg-base-200 rounded-lg shadow-sm">
           {/* Navegação calendário */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
             <button
-              className="btn btn-circle btn-sm bg-base-100"
+              className="btn btn-circle btn-xs md:btn-sm bg-base-100"
               onClick={viewMode === "week" ? goToPreviousWeek : goToPreviousMonth}
               aria-label={viewMode === "week" ? "Semana anterior" : "Mês anterior"}
             >
@@ -283,7 +318,7 @@ export default function ReunionsPage() {
             </button>
             
             <div className="flex flex-col items-center">
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-sm md:text-lg font-semibold text-center">
                 {viewMode === "week" 
                   ? `${formatDate(formatDateForApi(getStartOfWeek(currentWeek)))} - ${formatDate(formatDateForApi(getEndOfWeek(currentWeek)))}`
                   : `${monthNames[currentMonth - 1]} ${currentYear}`
@@ -292,7 +327,7 @@ export default function ReunionsPage() {
             </div>
             
             <button
-              className="btn btn-circle btn-sm bg-base-100"
+              className="btn btn-circle btn-xs md:btn-sm bg-base-100"
               onClick={viewMode === "week" ? goToNextWeek : goToNextMonth}
               aria-label={viewMode === "week" ? "Próxima semana" : "Próximo mês"}
             >
@@ -300,64 +335,90 @@ export default function ReunionsPage() {
             </button>
             <button 
                 onClick={viewMode === "week" ? goToCurrentWeek : goToCurrentMonth} 
-                className="btn btn-sm bg-base-100"
+                className="btn btn-xs md:btn-sm bg-base-100"
               >
-               <CgTime /> hoje
+               <CgTime className="mr-1 hidden sm:inline-block" /> hoje
             </button>
           </div>
 
           {/* Seleção de modo de visualização */}
-          <div className="join">
+          <div className="join mt-2 sm:mt-0">
             <button 
-              className={`join-item btn btn-sm btn-square ${viewMode === "week" ? "btn-secondary" : "btn-ghost"}`}
+              className={`join-item btn btn-xs md:btn-sm btn-square ${viewMode === "week" ? "btn-secondary" : "btn-ghost"}`}
               onClick={() => setViewMode("week")}
+              aria-label="Visualização semanal"
             >
-              <FaCalendarWeek className="" />
+              <FaCalendarWeek />
             </button>
             <button 
-              className={`join-item btn btn-sm btn-square ${viewMode === "month" ? "btn-secondary" : "btn-ghost"}`}
+              className={`join-item btn btn-xs md:btn-sm btn-square ${viewMode === "month" ? "btn-secondary" : "btn-ghost"}`}
               onClick={() => setViewMode("month")}
+              aria-label="Visualização mensal"
             >
-              <FaCalendarAlt className="" />
+              <FaCalendarAlt />
             </button>
           </div>
         </div>
       </div>
-      
-      {viewMode === "week" ? (
+        {viewMode === "week" ? (
         <>
           {/* Layout da visualização semanal */}
-          <div className="overflow-y-auto h-full relative bg-base-100 rounded-lg shadow-sm">
+          <div className="overflow-auto h-full relative bg-base-100 rounded-lg shadow-sm">
+            {/* Seletor de dias para telas pequenas (visível apenas em mobile) */}
+            <div className="md:hidden flex overflow-x-auto bg-base-100 sticky top-0 z-20 border-b border-base-200 shadow-sm">
+              {getDaysInWeek().map((dayInfo, index) => (
+                <button 
+                  key={`mobile-day-${index}`}
+                  className={`flex flex-col items-center p-2 min-w-[4rem] ${dayInfo.isToday ? 'bg-primary/10 text-primary font-bold' : ''}`}
+                  onClick={() => {
+                    // Mostrar reuniões deste dia no modal
+                    if (dayInfo.reunions.length > 0) {
+                      setSelectedDate(dayInfo.dateString);
+                      setSelectedReunions(dayInfo.reunions);
+                      (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
+                    }
+                  }}
+                >
+                  <div className="font-medium text-xs">{weekdayNames[dayInfo.date.getDay()]}</div>
+                  <div className={`text-sm ${dayInfo.isToday ? 'font-bold' : ''}`}>
+                    {dayInfo.date.getDate().toString().padStart(2, '0')}/{(dayInfo.date.getMonth() + 1).toString().padStart(2, '0')}
+                  </div>
+                  {dayInfo.reunions.length > 0 && (
+                    <div className="badge badge-xs badge-primary mt-1">{dayInfo.reunions.length}</div>
+                  )}
+                </button>
+              ))}
+            </div>
+
             {/* Agulha de tempo atual - posicionada absolutamente */}
             <div 
               ref={timelineRef}
-              className="absolute left-0 right-0 z-10 pointer-events-none" 
+              className="absolute left-0 right-0 z-10 pointer-events-none hidden md:block" 
               style={{
                 top: `calc(60px + (${currentTime.getHours()} * 56px) + (${currentTime.getMinutes()} / 60 * 56px))`,
               }}
             >
               <div className="flex items-center w-full">
-                <div className="w-20 pr-2 text-right">
+                <div className="w-12 md:w-20 pr-2 text-right">
                   <span className="text-xs font-medium text-error bg-base-100 px-1 py-0.5 rounded shadow-sm">
                     {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </span>
                 </div>
                 <div className="h-[2px] bg-error flex-grow" />
               </div>
-            </div>
-
-            <table className="table w-full relative border-collapse table-fixed">
+            </div>            {/* Tabela de calendário (visível apenas em desktop) */}
+            <table className="hidden md:table w-full relative border-collapse table-fixed">
               <thead className="sticky top-0 bg-base-100 z-20 shadow-sm">
                 <tr>
-                  <th className="w-20 bg-base-200 p-3">Horário</th>
+                  <th className="w-12 md:w-20 bg-base-200 p-1 md:p-3 text-xs md:text-sm">Horário</th>
                   {getDaysInWeek().map((dayInfo, index) => (
                     <th 
                       key={`header-${index}`}
                       style={{ width: `calc((100% - 5rem) / 7)` }}
-                      className={`text-center p-3 ${dayInfo.isToday ? 'bg-primary/10 text-primary font-bold' : 'bg-base-200'}`}
+                      className={`text-center p-1 md:p-3 ${dayInfo.isToday ? 'bg-primary/10 text-primary font-bold' : 'bg-base-200'}`}
                     >
-                      <div className="font-medium">{weekdayNames[dayInfo.date.getDay()]}</div>
-                      <div className={`text-sm ${dayInfo.isToday ? 'font-bold' : ''}`}>
+                      <div className="font-medium text-xs md:text-sm">{weekdayNames[dayInfo.date.getDay()]}</div>
+                      <div className={`text-xs md:text-sm ${dayInfo.isToday ? 'font-bold' : ''}`}>
                         {dayInfo.date.getDate().toString().padStart(2, '0')}/{(dayInfo.date.getMonth() + 1).toString().padStart(2, '0')}
                       </div>
                       {dayInfo.reunions.length > 0 && (
@@ -371,7 +432,7 @@ export default function ReunionsPage() {
                 {/* Faixa de horários das 0h às 23h */}
                 {Array.from({ length: 24 }, (_, i) => i).map(hour => (
                   <tr key={`hour-${hour}`} className="border-t border-base-200">
-                    <td className="font-medium text-sm text-center bg-base-100 border-r border-base-200 sticky left-0 w-20">
+                    <td className="font-medium text-xs md:text-sm text-center bg-base-100 border-r border-base-200 sticky left-0 w-12 md:w-20">
                       {hour.toString().padStart(2, '0')}:00
                     </td>
                     {getDaysInWeek().map((dayInfo, dayIndex) => {
@@ -384,7 +445,7 @@ export default function ReunionsPage() {
                         <td 
                           key={`day-${dayIndex}-hour-${hour}`}
                           style={{ width: `calc((100% - 5rem) / 7)` }}
-                          className={`border border-base-200 h-14 p-1 align-top ${dayInfo.isToday ? 'bg-primary/5' : ''} 
+                          className={`border border-base-200 h-10 md:h-14 p-1 align-top ${dayInfo.isToday ? 'bg-primary/5' : ''} 
                           ${hour >= 8 && hour <= 18 ? 'bg-base-100' : 'bg-base-200/20'} 
                           ${hoursReunions.length > 0 ? 'hover:bg-base-300/50 transition-colors cursor-pointer' : ''}`}
                         >
@@ -393,13 +454,12 @@ export default function ReunionsPage() {
                               {hoursReunions.map(reunion => (
                                 <div 
                                   key={reunion.id} 
-                                  className="p-1.5 px-2 bg-primary text-primary-content rounded text-xs shadow-sm
+                                  className="p-1 md:p-1.5 px-2 bg-primary text-primary-content rounded text-xs shadow-sm
                                     w-full block overflow-hidden text-ellipsis cursor-pointer hover:shadow-md transition-all"
                                   title={`${reunion.reunion_title} (${formatTime(reunion.scheduled_time)} - ${reunion.duration_minutes} min)`}
                                   onClick={() => {
                                     setSelectedDate(dayInfo.dateString);
-                                    setSelectedReunions([reunion]);
-                                    (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
+                                    setSelectedReunions([reunion]);                                    (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
                                   }}
                                 >
                                   <div className="flex items-center gap-1">
@@ -416,18 +476,105 @@ export default function ReunionsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table>            {/* Visualização de lista para dispositivos móveis (vista diária) */}
+            <div className="md:hidden px-2 py-3 space-y-4">
+              {getReunionsByDay().map((dayInfo, index) => (
+                <div key={`mobile-day-list-${index}`} className={`space-y-2 ${!dayInfo.isToday && 'hidden'}`}>
+                  <h3 className="font-semibold text-center flex items-center justify-center gap-2">
+                    <span>Reuniões de Hoje</span>
+                    <span className="badge badge-primary badge-sm">{dayInfo.reunions.length}</span>
+                  </h3>
+                  
+                  {dayInfo.reunions.length > 0 ? (
+                    <div className="space-y-2">
+                      {dayInfo.reunions.map(reunion => (
+                        <div 
+                          key={reunion.id} 
+                          className="p-3 bg-base-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+                          onClick={() => {
+                            setSelectedDate(dayInfo.dateString);
+                            setSelectedReunions([reunion]);
+                            (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
+                          }}
+                        >
+                          <div className="font-medium">{reunion.reunion_title}</div>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-base-content/80">
+                            <div className="flex items-center gap-1">
+                              <FiClock />
+                              <span>{formatTime(reunion.scheduled_time)}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <BiStopwatch />
+                              <span>{reunion.duration_minutes} min</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-base-content/60">
+                      <p>Nenhuma reunião agendada para hoje</p>
+                      <button 
+                        className="btn btn-xs btn-link mt-2"
+                        onClick={() => {
+                          const allReunions = reunions.flatMap(r => r);
+                          if (allReunions.length > 0) {
+                            setSelectedReunions(allReunions);
+                            (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
+                          }
+                        }}
+                      >
+                        Ver todas as reuniões da semana
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Lista de todos os dias da semana para navegação rápida */}
+              <div className="pt-4 border-t mt-4">
+                <h4 className="font-medium text-sm mb-2">Outros dias da semana:</h4>
+                <div className="space-y-2">
+                  {getReunionsByDay().filter(day => !day.isToday).map((dayInfo, index) => (
+                    <button 
+                      key={`day-nav-${index}`}
+                      className="flex justify-between items-center w-full p-2 rounded hover:bg-base-200 transition-colors text-left"
+                      onClick={() => {
+                        if (dayInfo.reunions.length > 0) {
+                          setSelectedDate(dayInfo.dateString);
+                          setSelectedReunions(dayInfo.reunions);
+                          (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
+                        }
+                      }}
+                    >
+                      <span>
+                        <span className="font-medium">{dayInfo.dayName}</span>
+                        <span className="text-xs text-base-content/70 ml-2">
+                          {dayInfo.dayNumber.toString().padStart(2, '0')}/{dayInfo.month.toString().padStart(2, '0')}
+                        </span>
+                      </span>
+                      {dayInfo.reunions.length > 0 ? (
+                        <span className="badge badge-primary badge-sm">{dayInfo.reunions.length}</span>
+                      ) : (
+                        <span className="text-xs text-base-content/50">Sem reuniões</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </>
-      ) : (
+        </>      ) : (
         <>
           {/* Grid do calendário mensal com design melhorado */}
           <div className="bg-base-100 rounded-lg shadow-sm overflow-hidden h-full m-0">
             {/* Cabeçalhos dos dias da semana */}
             <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
               {weekdayNames.map((day, i) => (
-                <div key={`header-${i}`} className="p-3 text-center font-medium">
-                  {day}
+                <div key={`header-${i}`} className="p-1 md:p-3 text-center font-medium text-xs md:text-sm">
+                  {/* Em telas muito pequenas, mostrar apenas a primeira letra */}
+                  <span className="xs:hidden">{day.charAt(0)}</span>
+                  <span className="hidden xs:inline">{day}</span>
                 </div>
               ))}
             </div>
@@ -440,7 +587,7 @@ export default function ReunionsPage() {
                 return (
                   <div
                     key={`day-${idx}`}
-                    className={`min-h-[120px] p-2 border border-base-200 transition-all duration-200
+                    className={`min-h-[80px] md:min-h-[120px] p-1 md:p-2 border border-base-200 transition-all duration-200
                       ${!dayInfo.isCurrentMonth ? "bg-base-200/30" : ""}
                       ${isToday ? "bg-primary/10" : ""}
                       ${dayInfo.isCurrentMonth && dayInfo.reunions?.length > 0 ? "hover:bg-base-200 cursor-pointer" : ""}`}
@@ -449,26 +596,26 @@ export default function ReunionsPage() {
                     {dayInfo.day && (
                       <div className="flex justify-between items-center mb-1">
                         <div className={`flex items-center justify-center 
-                          ${isToday ? "h-7 w-7 rounded-full bg-primary text-primary-content" : ""}`}>
-                          <span className={`${isToday ? "" : "text-sm font-medium"} ${!dayInfo.isCurrentMonth ? "opacity-50" : ""}`}>
+                          ${isToday ? "h-5 w-5 md:h-7 md:w-7 rounded-full bg-primary text-primary-content" : ""}`}>
+                          <span className={`text-xs md:text-sm ${isToday ? "" : "font-medium"} ${!dayInfo.isCurrentMonth ? "opacity-50" : ""}`}>
                             {dayInfo.day}
                           </span>
                         </div>
                         
                         {/* Badge com contagem de reuniões */}
                         {dayInfo.isCurrentMonth && dayInfo.reunions?.length > 0 && (
-                          <span className="badge badge-sm badge-primary">{dayInfo.reunions.length}</span>
+                          <span className="badge badge-xs md:badge-sm badge-primary">{dayInfo.reunions.length}</span>
                         )}
                       </div>
                     )}
-                    
-                    {/* Lista de reuniões para o dia (limitado a 3 com indicador de "mais") */}
+                      {/* Lista de reuniões para o dia (limitado a 3 com indicador de "mais") */}
                     {dayInfo.isCurrentMonth && dayInfo.reunions?.length > 0 && (
                       <div className="mt-1 space-y-1">
-                        {dayInfo.reunions.slice(0, 3).map((r: Reunion) => (
+                        {/* Em telas grandes mostrar 3 reuniões, em pequenas apenas 1 */}
+                        {dayInfo.reunions.slice(0, isMobile ? 1 : 3).map((r: Reunion) => (
                           <div
                             key={r.id}
-                            className="text-xs p-1 px-2 bg-primary/80 text-primary-content rounded-md
+                            className="text-[10px] md:text-xs p-0.5 md:p-1 px-1 md:px-2 bg-primary/80 text-primary-content rounded-md
                               whitespace-nowrap overflow-hidden text-ellipsis hover:bg-primary transition-colors"
                             title={`${r.reunion_title} (${formatTime(r.scheduled_time)})`}
                             onClick={() => {
@@ -477,23 +624,23 @@ export default function ReunionsPage() {
                               (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
                             }}
                           >
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0 md:gap-1">
                               <span className="font-medium">{formatTime(r.scheduled_time)}</span>
-                              <span className="truncate">- {r.reunion_title}</span>
+                              <span className="truncate hidden sm:inline">- {r.reunion_title}</span>
                             </div>
                           </div>
                         ))}
                         
-                        {dayInfo.reunions.length > 3 && (
+                        {dayInfo.reunions.length > (isMobile ? 1 : 3) && (
                           <div 
-                            className="text-xs text-primary font-medium pl-2 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
+                            className="text-[10px] md:text-xs text-primary font-medium pl-1 md:pl-2 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
                             onClick={() => {
                               setSelectedDate(dayInfo.dateString);
                               setSelectedReunions(dayInfo.reunions);
                               (document.getElementById('reunion_details_modal') as HTMLDialogElement).showModal();
                             }}
                           >
-                            <span className="text-primary">+{dayInfo.reunions.length - 3}</span> mais
+                            <span className="text-primary">+{dayInfo.reunions.length - (isMobile ? 1 : 3)}</span> mais
                           </div>
                         )}
                       </div>
@@ -504,18 +651,16 @@ export default function ReunionsPage() {
             </div>
           </div>
         </>
-      )}
-
-      {/* Modal para detalhes da reunião selecionada */}
+      )}      {/* Modal para detalhes da reunião selecionada */}
       <dialog id="reunion_details_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-3xl">
+        <div className="modal-box w-11/12 max-w-3xl p-3 md:p-6">
           <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            <button className="btn btn-xs md:btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
-          <h3 className="text-xl font-semibold border-b pb-2 mb-4">
+          <h3 className="text-base md:text-xl font-semibold border-b pb-2 mb-4">
             Reuniões do dia {selectedDate ? formatDate(selectedDate) : ''}
             {selectedReunions.length > 0 && (
-              <span className="text-sm font-normal ml-2 text-base-content/70">
+              <span className="text-xs md:text-sm font-normal ml-2 text-base-content/70">
                 ({selectedReunions.length} {selectedReunions.length === 1 ? "reunião" : "reuniões"})
               </span>
             )}
@@ -523,35 +668,35 @@ export default function ReunionsPage() {
           
           {selectedReunions.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-5xl mb-3 opacity-20">📅</div>
+              <div className="text-4xl md:text-5xl mb-3 opacity-20">📅</div>
               <p className="text-base-content/70">Nenhuma reunião agendada para esta data.</p>
             </div>
           ) : (
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            <div className="space-y-3 md:space-y-4 max-h-[60vh] overflow-y-auto pr-1 md:pr-2">
               {selectedReunions.map((reunion) => (
                 <div key={reunion.id} className="card bg-base-200 overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="card-body p-4">
-                    <div className="flex justify-between items-start">
+                  <div className="card-body p-3 md:p-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
                       <div>
-                        <h4 className="card-title text-lg">{reunion.reunion_title}</h4>
-                        <div className="flex flex-wrap items-center gap-4 mt-2 text-sm">
-                          <div className="flex items-center gap-2">
+                        <h4 className="card-title text-sm md:text-lg">{reunion.reunion_title}</h4>
+                        <div className="flex flex-wrap items-center gap-2 md:gap-4 mt-2 text-xs md:text-sm">
+                          <div className="flex items-center gap-1 md:gap-2">
                             <FiClock/><span>{formatTime(reunion.scheduled_time)}</span>
                           </div>
-                          |
-                          <div className="flex items-center gap-2">
+                          <span className="hidden sm:inline">|</span>
+                          <div className="flex items-center gap-1 md:gap-2">
                             <BiStopwatch /><span>{reunion.duration_minutes} minutos</span>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-2 sm:mt-0">
                         {reunion.reunion_url && (
                           <a
                             href={reunion.reunion_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn btn-sm btn-square btn-primary"
+                            className="btn btn-xs md:btn-sm btn-square btn-primary"
                             title="Participar da reunião"
                           >
                             <FaExternalLinkAlt />
