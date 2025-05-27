@@ -1,6 +1,6 @@
 import Header from "@/components/header";
 import { BsYoutube, BsWhatsapp, BsInstagram } from "react-icons/bs";
-import { HiAcademicCap, HiClock, HiCheck, HiCheckCircle, HiHeart, HiTicket, HiDocument, HiQuestionMarkCircle } from "react-icons/hi";
+import { HiAcademicCap, HiClock, HiCheck, HiCheckCircle, HiHeart, HiTicket, HiDocument, HiQuestionMarkCircle, HiBookOpen, HiOfficeBuilding } from "react-icons/hi";
 import type { Metadata } from "next";
 import Logo from "@/components/logo";
 import FadeIn from "@/components/FadeIn";
@@ -80,7 +80,7 @@ export default function LandingPage() {
             <div className="text-center mb-12">
               <h2 className="text-4xl font-serif mb-3 text-primary">Fé e Razão</h2>
               <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
-              <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de São Tomás de Aquino</p>
+              <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de Santo Tomás de Aquino</p>
             </div>
           </FadeIn>
             <div className="grid md:grid-cols-3 gap-8 mt-16">
@@ -272,8 +272,7 @@ export default function LandingPage() {
                   <a href="https://wa.me/5562821377" className="btn btn-primary btn-sm gap-2">
                     <BsWhatsapp size={16} />
                     Faça parte
-                  </a>
-                </div>
+                  </a>                </div>
                 </div>
               </FadeIn>
             </div>
@@ -281,7 +280,104 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section - Direct and professional */}      <section className="py-16 bg-gradient-to-b from-primary/5 to-base-100 relative">
+      {/* Curso de Educação Católica dos Filhos Section */}      
+      <section className="py-20 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="md:w-1/2">
+              <FadeIn direction="left">
+                <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Curso de Educação</span> Católica dos Filhos</h2>
+                <div className="divider mb-6"></div>
+                <div className="space-y-6">
+                  <div className="bg-base-100 p-5 rounded-lg shadow-lg">
+                    <div className="flex items-center">
+                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                        <HiBookOpen className="w-8 h-8 text-primary" />
+                      </div>
+                      <div>
+                        <div className="badge badge-secondary mb-2">em breve</div>
+                        <h3 className="text-xl font-medium">Formação completa para pais católicos</h3>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-base-content/80">
+                      Um programa abrangente para auxiliar pais na educação de seus filhos segundo os princípios da tradição católica, formando jovens virtuosos prontos para enfrentar os desafios do mundo moderno.
+                    </p>
+                    <div className="mt-5">
+                      <a href="https://wa.me/5562821377" className="btn btn-outline btn-sm">
+                        Lista de espera
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+            
+            <div className="md:w-1/2">              <FadeIn direction="right" delay={0.2}>
+                <div className="relative">
+                  <div className="w-full h-80 bg-[url('/images/4.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
+                  <div className="absolute -bottom-4 -right-4 bg-primary text-white p-3 rounded-lg shadow-lg">
+                    <p className="font-serif">Educação integral</p>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Virtus et Opus Section */}      
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row-reverse items-center gap-12">
+            <div className="md:w-1/2">
+              <FadeIn direction="right">
+                <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Virtus et Opus</span></h2>
+                <h3 className="text-xl mb-4">Consultoria empresarial tomista - Avaliação psicossocial RN1</h3>
+                <div className="divider mb-6"></div>
+                <div className="space-y-6">
+                  {[
+                    { title: "Princípios tomistas", description: "Aplicação dos princípios da filosofia tomista no ambiente empresarial." },
+                    { title: "Ordenamento corporativo", description: "Estruturação hierárquica e organizacional baseada no bem comum da empresa." },
+                    { title: "Formação de líderes", description: "Desenvolvimento de lideranças virtuosas capazes de conduzir suas equipes com justiça e prudência." }
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start gap-4">
+                      <div className="p-3 bg-primary text-white rounded-lg mt-1">
+                        <HiCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">{item.title}</h3>
+                        <p className="text-sm opacity-75">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mt-6">
+                    <a href="https://wa.me/5562821377" className="btn btn-primary">
+                      <BsWhatsapp className="w-4 h-4" />
+                      Solicitar consultoria
+                    </a>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+
+            <div className="md:w-1/2">
+              <FadeIn direction="left" delay={0.2}>
+                <div className="relative bg-base-200 p-8 rounded-lg shadow-xl flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full bg-base-300 flex items-center justify-center">
+                    <HiOfficeBuilding className="w-16 h-16 text-primary" />
+                  </div>
+                  <div className="absolute -bottom-6 -right-6 bg-primary text-white p-4 rounded shadow-lg">
+                    <p className="text-xl font-serif">Virtudes para o trabalho</p>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Direct and professional */}      
+      <section className="py-16 bg-gradient-to-b from-primary/5 to-base-100 relative">
         <div className="absolute inset-0 w-full h-full opacity-50">
           <div className="w-full h-full bg-[url('/images/8.jpg')] bg-no-repeat bg-cover opacity-50"></div>
         </div>
@@ -342,7 +438,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left">
               <h3 className="text-xl font-serif mb-2">Psicologia Católica Tradicional</h3>
-              <p className="text-sm opacity-75">Restaurando a verdadeira psicologia à luz da doutrina católica</p>
+              <p className="text-sm opacity-75">restaurando a verdadeira psicologia à luz do tomismo</p>
             </div>
             
             <div className="flex gap-6">              <a href="https://wa.me/5562821377" className="btn btn-circle btn-outline">
