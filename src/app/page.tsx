@@ -63,8 +63,10 @@ export default function LandingPage() {
             </div>
           </FadeIn>
         </div>
-      </section>      {/* About Section - Professional and concise */}
-      <section id="sobre" className="py-20 bg-base-200">        <div className="container mx-auto px-4">
+      </section>
+      {/* About Section - Professional and concise */}
+      <section id="sobre" className="py-20 bg-base-200">
+        <div className="container mx-auto px-4">
           <FadeIn direction="down" className="w-full" duration={1.5} threshold={0.15}>
             <div className="text-center mb-12">
               <h2 className="text-4xl font-serif mb-3 text-primary">Fé e Razão</h2>
@@ -72,7 +74,8 @@ export default function LandingPage() {
               <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de São Tomás de Aquino</p>
             </div>
           </FadeIn>
-            <div className="grid md:grid-cols-3 gap-8 mt-16">            {[
+            <div className="grid md:grid-cols-3 gap-8 mt-16">
+            {[
               {
                 image: '3.jpg',
                 title: 'Visão Integral',
@@ -92,7 +95,11 @@ export default function LandingPage() {
               <FadeIn key={index} direction="up" delay={index * 0.15} className="w-full">
                 <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all h-full">
                   <figure className="px-6 pt-6">
-                    <div className={`h-48 w-full bg-[url('/images/${card.image}')] bg-cover bg rounded-xl`}></div>
+                    <img 
+                      src={`/images/${card.image}`}
+                      alt={card.title}
+                      className="h-48 w-full object-cover rounded-xl"
+                    />
                   </figure>
                   <div className="card-body items-center text-center">
                     <h3 className="card-title font-serif text-primary">{card.title}</h3>
