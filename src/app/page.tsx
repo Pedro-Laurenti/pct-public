@@ -9,6 +9,15 @@ export const metadata: Metadata = {
   title: "Psicologia Católica Tradicional | Visão Tomista da Alma Humana",
   description: "Resgatando a sabedoria perene da psicologia tomista para o ordenamento da alma humana. Mentoria, cursos e formação na tradicional visão católica da pessoa.",
   keywords: "psicologia católica, psicologia tomista, são tomás de aquino, mentoria católica, desenvolvimento integral, alma humana",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/favicon.ico',
+    },
+  },
 };
 
 export default function LandingPage() {
