@@ -2,6 +2,7 @@ import Header from "@/components/header";
 import { BsYoutube, BsWhatsapp, BsInstagram } from "react-icons/bs";
 import { HiAcademicCap, HiClock, HiCheck, HiCheckCircle, HiHeart, HiTicket, HiDocument, HiQuestionMarkCircle } from "react-icons/hi";
 import type { Metadata } from "next";
+import Logo from "@/components/logo";
 
 export const metadata: Metadata = {
   title: "Psicologia Católica Tradicional | Visão Tomista da Alma Humana",
@@ -14,33 +15,47 @@ export default function LandingPage() {
     <div className="min-h-screen bg-base-100">
       <Header />
         {/* Hero Section - More professional, cleaner design */}
-      <section className="hero min-h-[90vh] bg-gradient-to-b from-primary/10 to-base-100 relative overflow-hidden flex items-center pt-20">
-        <div className="absolute inset-0 opacity-10 z-0">
-          <div className="h-full bg-[url('/images/thomas-aquinas-pattern.png')] bg-repeat opacity-20"></div>
+      <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-b from-primary/10 to-base-100 overflow-hidden py-16">
+        {/* Background image overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="w-full h-full bg-[url('/images/2.jpg')] bg-cover bg-center bg-no-repeat opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-base-100/80 to-base-100/95"></div>
         </div>
-        <div className="container mx-auto z-10">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 text-center md:text-left p-8">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 font-serif leading-tight">Psicologia Católica<br/><span className="text-primary">Tradicional</span></h1>
-              <p className="text-xl mb-8 max-w-lg">
-                <span className="font-semibold text-primary border-l-4 border-primary pl-3">Resgatando a sabedoria perene para o ordenamento da alma humana.</span>
-              </p>              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="https://wa.me/5562821377" className="btn btn-primary btn-lg gap-2">
-                  <BsWhatsapp size={20} />
-                  Faça parte
-                </a>
-                <a href="#sobre" className="btn btn-outline btn-lg">
-                  Conhecer
-                </a>
-              </div>
-              <div className="mt-8 badge badge-outline p-4 font-serif">In Nomine Domini</div>
+        {/* Content */}
+        <div className="relative z-10 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-12">
+          {/* Left: Text */}
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 font-serif leading-tight">
+              Psicologia Católica<br />
+              <span className="text-primary">Tradicional</span>
+            </h1>
+            <p className="text-lg sm:text-xl mb-8 max-w-lg">
+              <span className="font-semibold text-primary border-l-4 border-primary pl-3">
+                Resgatando a sabedoria perene para o ordenamento da alma humana.
+              </span>
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center md:justify-start">
+              <a href="https://wa.me/5562821377" className="btn btn-primary btn-lg gap-2">
+                <BsWhatsapp size={20} />
+                Faça parte
+              </a>
+              <a href="#sobre" className="btn btn-outline btn-lg">
+                Conhecer
+              </a>
             </div>
-            <div className="md:w-1/2 p-8 hidden md:block">
-              <div className="relative h-96">
-                <div className="absolute inset-0 rounded-lg shadow-2xl overflow-hidden bg-primary/5 flex items-center justify-center">
-                  <div className="w-3/4 h-3/4 bg-[url('/images/st-thomas-aquinas.png')] bg-contain bg-center bg-no-repeat"></div>
-                </div>
-              </div>
+            <div className="mt-8">
+              <span className="badge badge-outline p-4 font-serif">In Nomine Domini</span>
+            </div>
+          </div>
+          {/* Right: Image */}
+          <div className="w-full md:w-1/2 flex justify-center items-center mb-8 md:mb-0">
+            <div className="relative max-h-96 rounded-xl shadow-xl overflow-hidden">
+              <img
+                src="/images/1.jpg"
+                alt="Psicologia Católica Tradicional"
+                className="w-full h-full object-cover rounded-xl"
+              />
+              <div className="absolute inset-0 rounded-xl ring-4 ring-primary/10 pointer-events-none"></div>
             </div>
           </div>
         </div>
@@ -57,24 +72,24 @@ export default function LandingPage() {
             <div className="grid md:grid-cols-3 gap-8 mt-16">
             {[
               {
-                image: 'vision.jpg',
+                image: '3.jpg',
                 title: 'Visão Integral',
                 description: 'Unidade substancial de corpo e alma, considerando todas as dimensões da pessoa humana.'
               },
               {
-                image: 'method.jpg',
+                image: '4.jpg',
                 title: 'Método Eficaz',
                 description: 'Ordenamento das potências da alma para alcançar a perfeição cristã e a verdadeira felicidade.'
               },
               {
-                image: 'mentorship.jpg',
+                image: '5.jpg',
                 title: 'Mentoria Contínua',
                 description: 'Acompanhamento personalizado com acesso vitalício às aulas e materiais de formação.'
               }
             ].map((card, index) => (
               <div key={index} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
                 <figure className="px-6 pt-6">
-                  <div className={`h-48 w-full bg-[url('/images/${card.image}')] bg-cover bg-center rounded-xl`}></div>
+                  <div className={`h-48 w-full bg-[url('/images/${card.image}')] bg-cover bg rounded-xl`}></div>
                 </figure>
                 <div className="card-body items-center text-center">
                   <h3 className="card-title font-serif text-primary">{card.title}</h3>
@@ -90,8 +105,10 @@ export default function LandingPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="md:w-1/2 relative">
-              <div className="w-full h-96 bg-[url('/images/mentorship-program.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
+            <div className="md:w-1/2 relative bg-base-300 p-8 rounded-lg shadow-xl flex items-center justify-center">
+              <div className="max-w-72">
+                <Logo />
+              </div>
               <div className="absolute -bottom-6 -right-6 bg-primary text-white p-4 rounded shadow-lg">
                 <p className="text-xl font-serif">Acesso vitalício às aulas</p>
               </div>
@@ -104,7 +121,7 @@ export default function LandingPage() {
                 {[
                   { 
                     icon: <HiAcademicCap className="w-6 h-6 text-primary" />, 
-                    text: "Seis encontros por módulo com interação e tirada de dúvidas ao vivo" 
+                    text: "Seis encontros por módulo com interação ao vivo" 
                   },
                   { 
                     icon: <HiClock className="w-6 h-6 text-primary" />, 
@@ -140,8 +157,8 @@ export default function LandingPage() {
 
       {/* Tomist Psychology Section - Professional and impactful */}
       <section className="py-24 bg-base-200 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="h-full bg-[url('/images/philosophy-pattern.png')] bg-repeat"></div>
+        <div className="absolute inset-0 w-full h-full opacity-30">
+          <div className="w-full h-full bg-[url('/images/7.jpg')] bg-no-repeat bg-cover bg-center"></div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row items-center gap-8">
@@ -180,27 +197,7 @@ export default function LandingPage() {
               </div>
             </div>
             
-            <div className="md:w-1/2 flex justify-center">
-              <div className="relative w-full max-w-md">
-                <div className="absolute -top-6 -left-6 w-64 h-64 rounded-full bg-primary/10 z-0"></div>
-                <div className="absolute -bottom-6 -right-6 w-64 h-64 rounded-full bg-primary/10 z-0"></div>
-                <div className="relative z-10 bg-base-100 p-8 rounded-lg shadow-2xl">
-                  <div className="text-center mb-6">
-                    <span className="text-4xl font-serif text-primary">"</span>
-                    <p className="text-lg font-medium">
-                      NÃO DESANIME! NÃO PROCRASTINE! NÃO DESISTA!
-                    </p>
-                    <p className="mt-4 text-sm opacity-75">
-                      Ao final de cada encontro saímos com os ânimos renovados e um desejo ardente de ser melhor.
-                    </p>
-                    <span className="text-4xl font-serif text-primary">"</span>
-                  </div>
-                  <div className="flex justify-center">
-                    <a href="https://wa.me/5562821377" className="btn btn-sm btn-primary">Iniciar minha jornada</a>
-                  </div>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </section>
@@ -261,8 +258,8 @@ export default function LandingPage() {
 
       {/* CTA Section - Direct and professional */}
       <section className="py-16 bg-gradient-to-b from-primary/5 to-base-100 relative">
-        <div className="absolute inset-0 opacity-10">
-          <div className="h-full bg-[url('/images/cta-pattern.png')] bg-repeat opacity-30"></div>
+        <div className="absolute inset-0 w-full h-full opacity-50">
+          <div className="w-full h-full bg-[url('/images/8.jpg')] bg-no-repeat bg-cover opacity-50"></div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-5xl mx-auto bg-base-300 p-12 rounded-lg shadow-2xl">
