@@ -56,26 +56,22 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
       />
       
       <div className="drawer-content flex flex-col">
-        {/* Navbar */}
-        <div className="navbar bg-base-100 shadow-md lg:hidden">
+        {/* Navbar */}        <div className="navbar bg-base-100 shadow-md lg:hidden">
           <div className="flex-none">
-            <label htmlFor="drawer-toggle" className="btn btn-square btn-ghost drawer-button">
-              <BiMenu className="w-5 h-5" />
+            <label htmlFor="drawer-toggle" className="btn btn-square btn-ghost drawer-button p-3">
+              <BiMenu className="w-7 h-7" />
             </label>
+          </div>        <div className="flex-1">
+            <a className="btn btn-ghost text-xl px-3">Portal do Aluno</a>
           </div>
-          <div className="flex-1">
-            <a className="btn btn-ghost text-xl">Portal do Aluno</a>
-          </div>
-          <div className="flex-none">
-            <ThemeToggle />
+          <div className="flex-none flex items-center gap-1"><ThemeToggle />
             <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle bg-primary text-primary-content rounded-full w-10">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle bg-primary text-primary-content rounded-full w-12 h-12 text-lg ml-2">
                   <span>{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
               </div>
-              <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                <li><a href="/profile">Perfil</a></li>
-                <li><a href="/settings">Configurações</a></li>
-                <li><a href="/logout">Sair</a></li>
+              <ul tabIndex={0} className="menu dropdown-content mt-3 z-[1] p-3 shadow bg-base-100 rounded-box w-64">
+                <li className="my-1"><a href="/dashboard/profile" className="py-3 text-base flex items-center"><FaUser className="mr-2" /> Perfil</a></li>
+                <li className="my-1"><a href="/logout" className="py-3 text-base flex items-center"><FaSignOutAlt className="mr-2" /> Sair</a></li>
               </ul>
             </div>
           </div>
@@ -124,15 +120,14 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
               </li>
             ))}
           </ul>
-          
-          {/* Rodapé - botão de logout */}
-          <div className="mt-6 pt-6 border-t border-base-300 flex">
-              <button onClick={() => router.push('/logout')} className="btn btn-square text-error">
-                <FaSignOutAlt className="w-5 h-5" />
+            {/* Rodapé - botão de logout */}
+          <div className="mt-6 pt-6 border-t border-base-300 flex justify-between">
+              <button onClick={() => router.push('/logout')} className="btn btn-lg btn-ghost text-error flex gap-2 flex-1 justify-start">
+                <FaSignOutAlt className="w-5 h-5" /> <span>Sair</span>
               </button>
               <ThemeToggle />
-              <button onClick={() => router.push('/dashboard/profile')} className="btn btn-square">
-                <FaUser className="w-5 h-5" />
+              <button onClick={() => router.push('/dashboard/profile')} className="btn btn-lg btn-ghost flex gap-2 flex-1 justify-end">
+                <FaUser className="w-5 h-5" /> <span>Perfil</span>
               </button>
           </div>
         </div>

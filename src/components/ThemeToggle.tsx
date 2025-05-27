@@ -35,18 +35,17 @@ export default function ThemeToggle() {
   if (!mounted) {
     return <div className="btn btn-square btn-ghost opacity-0" />;
   }
-
   return (
     <button 
-      className="btn btn-square"
+      className="btn btn-square btn-ghost p-2"
       onClick={toggleTheme}
       aria-label="Toggle theme"
     >
       <div className="w-full h-full relative flex items-center justify-center">
         {currentTheme === 'mydark' ? (
-          <FiSun className="h-5 w-5" />
+          <FiSun className="h-6 w-6" />
         ) : (
-          <FiMoon className="h-5 w-5" />
+          <FiMoon className="h-6 w-6" />
         )}
       </div>
     </button>

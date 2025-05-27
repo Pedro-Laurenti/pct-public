@@ -32,7 +32,6 @@ export default function LoginPage() {
 
     checkAuth();
   }, [router]);
-
   const handleLogin = async () => {
     setError("");
     setShowAlert(false);
@@ -65,17 +64,25 @@ export default function LoginPage() {
       }
 
       if (response.ok) {
+        // Não desativa o loading aqui para manter o botão carregando até o redirecionamento
         router.push("/dashboard");
       } else {
+        // Desativa o loading apenas em caso de erro
+        setLoading(false);
         const data = await response.json();
         setError(data.message || "Erro ao fazer login");
         setShowAlert(true);
       }
     } catch (err) {
+      // Desativa o loading em caso de erro de conexão
       setLoading(false);
       setError("Erro ao conectar ao servidor.");
       setShowAlert(true);
     }
+  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleLogin();
   };
 
   return (
@@ -87,43 +94,44 @@ export default function LoginPage() {
           onClose={() => setShowAlert(false)}
         />
       )}
-      <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-        <legend className="fieldset-legend text-2xl font-bold">Login</legend>
+      <form onSubmit={handleSubmit}>
+        <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+          <legend className="fieldset-legend text-2xl font-bold">Login</legend>
 
-        <label className="label">Email</label>
-        <label className="input">
-          <BiUser />
-          <input
-            type="email"
-            placeholder="Email"
-            title="Insira um endereço de email válido"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
+          <label className="label">Email</label>
+          <label className="input">
+            <BiUser />
+            <input
+              type="email"
+              placeholder="Email"
+              title="Insira um endereço de email válido"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
 
-        <label className="label">Senha</label>
-        <label className="input">
-          <BiKey />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
+          <label className="label">Senha</label>
+          <label className="input">
+            <BiKey />
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
 
-        <button
-          type="button"
-          className="btn btn-primary w-full mt-4"
-          onClick={handleLogin}
-          disabled={loading}
-        >
-          {loading ? <span className="loading loading-spinner"></span> : "Entrar"}
-        </button>
-      </fieldset>
+          <button
+            type="submit"
+            className="btn btn-primary w-full mt-4"
+            disabled={loading}
+          >
+            {loading ? <span className="loading loading-spinner"></span> : "Entrar"}
+          </button>
+        </fieldset>
+      </form>
     </div>
   );
 }
