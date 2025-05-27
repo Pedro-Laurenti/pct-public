@@ -3,6 +3,7 @@ import { BsYoutube, BsWhatsapp, BsInstagram } from "react-icons/bs";
 import { HiAcademicCap, HiClock, HiCheck, HiCheckCircle, HiHeart, HiTicket, HiDocument, HiQuestionMarkCircle } from "react-icons/hi";
 import type { Metadata } from "next";
 import Logo from "@/components/logo";
+import FadeIn from "@/components/FadeIn";
 
 export const metadata: Metadata = {
   title: "Psicologia Católica Tradicional | Visão Tomista da Alma Humana",
@@ -20,57 +21,58 @@ export default function LandingPage() {
         <div className="absolute inset-0 z-0">
           <div className="w-full h-full bg-[url('/images/2.jpg')] bg-cover bg-center bg-no-repeat opacity-20"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-base-100/80 to-base-100/95"></div>
-        </div>
-        {/* Content */}
+        </div>        {/* Content */}
         <div className="relative z-10 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-12">
           {/* Left: Text */}
-          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 font-serif leading-tight">
-              Psicologia Católica<br />
-              <span className="text-primary">Tradicional</span>
-            </h1>
-            <p className="text-lg sm:text-xl mb-8 max-w-lg">
-              <span className="font-semibold text-primary border-l-4 border-primary pl-3">
-                Resgatando a sabedoria perene para o ordenamento da alma humana.
-              </span>
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center md:justify-start">
-              <a href="https://wa.me/5562821377" className="btn btn-primary btn-lg gap-2">
-                <BsWhatsapp size={20} />
-                Faça parte
-              </a>
-              <a href="#sobre" className="btn btn-outline btn-lg">
-                Conhecer
-              </a>
+          <FadeIn direction="left" duration={1.5} threshold={0.2} className="w-full md:w-1/2">
+            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 font-serif leading-tight">
+                Psicologia Católica<br />
+                <span className="text-primary">Tradicional</span>
+              </h1>
+              <p className="text-lg sm:text-xl mb-8 max-w-lg">
+                <span className="font-semibold text-primary border-l-4 border-primary pl-3">
+                  Resgatando a sabedoria perene para o ordenamento da alma humana.
+                </span>
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center md:justify-start">
+                <a href="https://wa.me/5562821377" className="btn btn-primary btn-lg gap-2">
+                  <BsWhatsapp size={20} />
+                  Faça parte
+                </a>
+                <a href="#sobre" className="btn btn-outline btn-lg">
+                  Conhecer
+                </a>
+              </div>
+              <div className="mt-8">
+                <span className="badge badge-outline p-4 font-serif">In Nomine Domini</span>
+              </div>
             </div>
-            <div className="mt-8">
-              <span className="badge badge-outline p-4 font-serif">In Nomine Domini</span>
-            </div>
-          </div>
+          </FadeIn>
           {/* Right: Image */}
-          <div className="w-full md:w-1/2 flex justify-center items-center mb-8 md:mb-0">
-            <div className="relative max-h-96 rounded-xl shadow-xl overflow-hidden">
-              <img
-                src="/images/1.jpg"
-                alt="Psicologia Católica Tradicional"
-                className="w-full h-full object-cover rounded-xl"
-              />
-              <div className="absolute inset-0 rounded-xl ring-4 ring-primary/10 pointer-events-none"></div>
+          <FadeIn direction="right" duration={1.5} delay={0.3} threshold={0.2} className="w-full md:w-1/2">
+            <div className="flex justify-center items-center mb-8 md:mb-0">
+              <div className="relative max-h-96 rounded-xl shadow-xl overflow-hidden">
+                <img
+                  src="/images/1.jpg"
+                  alt="Psicologia Católica Tradicional"
+                  className="w-full h-full object-cover rounded-xl"
+                />
+                <div className="absolute inset-0 rounded-xl ring-4 ring-primary/10 pointer-events-none"></div>
+              </div>
             </div>
-          </div>
+          </FadeIn>
         </div>
-      </section>
-
-      {/* About Section - Professional and concise */}
-      <section id="sobre" className="py-20 bg-base-200">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-serif mb-3 text-primary">Fé e Razão</h2>
-            <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
-            <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de São Tomás de Aquino</p>
-          </div>
-            <div className="grid md:grid-cols-3 gap-8 mt-16">
-            {[
+      </section>      {/* About Section - Professional and concise */}
+      <section id="sobre" className="py-20 bg-base-200">        <div className="container mx-auto px-4">
+          <FadeIn direction="down" className="w-full" duration={1.5} threshold={0.15}>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-serif mb-3 text-primary">Fé e Razão</h2>
+              <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
+              <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de São Tomás de Aquino</p>
+            </div>
+          </FadeIn>
+            <div className="grid md:grid-cols-3 gap-8 mt-16">            {[
               {
                 image: '3.jpg',
                 title: 'Visão Integral',
@@ -87,36 +89,41 @@ export default function LandingPage() {
                 description: 'Acompanhamento personalizado com acesso vitalício às aulas e materiais de formação.'
               }
             ].map((card, index) => (
-              <div key={index} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
-                <figure className="px-6 pt-6">
-                  <div className={`h-48 w-full bg-[url('/images/${card.image}')] bg-cover bg rounded-xl`}></div>
-                </figure>
-                <div className="card-body items-center text-center">
-                  <h3 className="card-title font-serif text-primary">{card.title}</h3>
-                  <p className="text-sm">{card.description}</p>
+              <FadeIn key={index} direction="up" delay={index * 0.15} className="w-full">
+                <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all h-full">
+                  <figure className="px-6 pt-6">
+                    <div className={`h-48 w-full bg-[url('/images/${card.image}')] bg-cover bg rounded-xl`}></div>
+                  </figure>
+                  <div className="card-body items-center text-center">
+                    <h3 className="card-title font-serif text-primary">{card.title}</h3>
+                    <p className="text-sm">{card.description}</p>
+                  </div>
                 </div>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Mentorship Program Section - Concise and focused */}
+      </section>      {/* Mentorship Program Section - Concise and focused */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="md:w-1/2 relative bg-base-300 p-8 rounded-lg shadow-xl flex items-center justify-center">
-              <div className="max-w-72">
-                <Logo />
-              </div>
-              <div className="absolute -bottom-6 -right-6 bg-primary text-white p-4 rounded shadow-lg">
-                <p className="text-xl font-serif">Acesso vitalício às aulas</p>
-              </div>
+            <div className="md:w-1/2 w-full">
+              <FadeIn direction="left">
+                <div className="relative bg-base-300 p-8 rounded-lg shadow-xl flex items-center justify-center">
+                  <div className="max-w-72">
+                    <Logo />
+                  </div>
+                  <div className="absolute -bottom-6 -right-6 bg-primary text-white p-4 rounded shadow-lg">
+                    <p className="text-xl font-serif">Acesso vitalício às aulas</p>
+                  </div>
+                </div>
+              </FadeIn>
             </div>
             
             <div className="md:w-1/2">
-              <h2 className="text-4xl font-serif mb-6">Programa de <span className="text-primary">Mentoria</span></h2>
-              <div className="divider mb-6"></div>
+              <FadeIn direction="right" delay={0.2}>
+                <h2 className="text-4xl font-serif mb-6">Programa de <span className="text-primary">Mentoria</span></h2>
+                <div className="divider mb-6"></div>
                 <div className="space-y-6">
                 {[
                   { 
@@ -143,19 +150,18 @@ export default function LandingPage() {
                     <p className="font-medium">{item.text}</p>
                   </div>
                 ))}
-              </div>
-                <div className="mt-8">
-                <a href="https://wa.me/5562821377" className="btn btn-primary">
-                  <BsWhatsapp className="w-4 h-4" />
-                  Faça parte
-                </a>
-              </div>
+                </div>
+                  <div className="mt-8">
+                  <a href="https://wa.me/5562821377" className="btn btn-primary">
+                    <BsWhatsapp className="w-4 h-4" />
+                    Faça parte
+                  </a>
+                </div>
+              </FadeIn>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Tomist Psychology Section - Professional and impactful */}
+      </section>      {/* Tomist Psychology Section - Professional and impactful */}
       <section className="py-24 bg-base-200 relative overflow-hidden">
         <div className="absolute inset-0 w-full h-full opacity-30">
           <div className="w-full h-full bg-[url('/images/7.jpg')] bg-no-repeat bg-cover bg-center"></div>
@@ -163,77 +169,79 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/2">
-              <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Psicologia</span> Tomista</h2>
-              <div className="divider mb-6"></div>
-              
-              <blockquote className="italic text-xl mb-8 border-l-4 border-primary pl-4 py-2">
-                "A perfeição cristã nada mais é do que ser o que Deus quer que sejamos."
-              </blockquote>
-                <div className="space-y-6">
-                {[
-                  {
-                    title: "Iluminação da Inteligência",
-                    description: "Desenvolvimento da capacidade de discernimento e compreensão da realidade."
-                  },
-                  {
-                    title: "Fortalecimento da Vontade",
-                    description: "Disciplina interior para buscar o bem verdadeiro e perseverar no caminho virtuoso."
-                  },
-                  {
-                    title: "Transformação Interior",
-                    description: "Crescimento pessoal através do cultivo sistemático das virtudes cardeais e teologais."
-                  }
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-4">
-                    <div className="p-3 bg-primary text-white rounded-lg mt-1">
-                      <HiCheck className="w-6 h-6" />
+              <FadeIn direction="left">
+                <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Psicologia</span> Tomista</h2>
+                <div className="divider mb-6"></div>
+                  <blockquote className="italic text-xl mb-8 border-l-4 border-primary pl-4 py-2">
+                    "A perfeição cristã nada mais é do que ser o que Deus quer que sejamos."
+                  </blockquote>
+                  <div className="space-y-6">
+                  {[
+                    {
+                      title: "Iluminação da Inteligência",
+                      description: "Desenvolvimento da capacidade de discernimento e compreensão da realidade."
+                    },
+                    {
+                      title: "Fortalecimento da Vontade",
+                      description: "Disciplina interior para buscar o bem verdadeiro e perseverar no caminho virtuoso."
+                    },
+                    {
+                      title: "Transformação Interior",
+                      description: "Crescimento pessoal através do cultivo sistemático das virtudes cardeais e teologais."
+                    }
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start gap-4">
+                      <div className="p-3 bg-primary text-white rounded-lg mt-1">
+                        <HiCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">{item.title}</h3>
+                        <p className="text-sm opacity-75">{item.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-lg">{item.title}</h3>
-                      <p className="text-sm opacity-75">{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </FadeIn>
             </div>
-            
-
           </div>
         </div>
       </section>
 
-      {/* Team Section - Professional and elegant */}
-      <section className="py-20">
+      {/* Team Section - Professional and elegant */}      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-serif">Nossa <span className="text-primary">Mentora</span></h2>
-            <div className="w-24 h-1 bg-primary mx-auto mt-3 mb-6"></div>
-          </div>
+          <FadeIn direction="down">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-serif">Nossa <span className="text-primary">Mentora</span></h2>
+              <div className="w-24 h-1 bg-primary mx-auto mt-3 mb-6"></div>
+            </div>
+          </FadeIn>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-12">
             <div className="md:w-1/3 w-full">
-              <div className="relative">
-                <div className="w-full h-80 bg-[url('/images/liliane-lopes.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
-                <div className="absolute -bottom-4 -right-4 bg-primary text-white p-3 rounded-lg shadow-lg">
-                  <p className="font-serif">15 anos de experiência</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="md:w-1/2">
-              <div className="bg-base-100 p-8 rounded-lg shadow-xl">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-1 bg-primary h-12"></div>
-                  <div>
-                    <h3 className="text-2xl font-serif">Liliane Lopes</h3>
-                    <div className="badge badge-primary">Psicóloga Tomista</div>
+              <FadeIn direction="left">
+                <div className="relative">
+                  <div className="w-full h-80 bg-[url('/images/liliane-lopes.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
+                  <div className="absolute -bottom-4 -right-4 bg-primary text-white p-3 rounded-lg shadow-lg">
+                    <p className="font-serif">15 anos de experiência</p>
                   </div>
                 </div>
-                
-                <p className="mb-6 italic border-l-4 border-primary/30 pl-4 py-1">
-                  "Este trabalho é tanto um apostolado quanto um modo de fazer o bem, de retribuir um pouco a graça 
-                  de poder conhecer e trabalhar com a Psicologia Tomista."
-                </p>                <ul className="space-y-2 mb-6">
+              </FadeIn>
+            </div>
+              <div className="md:w-1/2">
+              <FadeIn direction="right" delay={0.2}>
+                <div className="bg-base-100 p-8 rounded-lg shadow-xl">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-1 bg-primary h-12"></div>
+                    <div>
+                      <h3 className="text-2xl font-serif">Liliane Lopes</h3>
+                      <div className="badge badge-primary">Psicóloga Tomista</div>
+                    </div>
+                  </div>
+                  
+                  <p className="mb-6 italic border-l-4 border-primary/30 pl-4 py-1">
+                    "Este trabalho é tanto um apostolado quanto um modo de fazer o bem, de retribuir um pouco a graça 
+                    de poder conhecer e trabalhar com a Psicologia Tomista."
+                  </p><ul className="space-y-2 mb-6">
                   {[
                     "Especialista em Bioética",
                     "10 anos de dedicação à Psicologia Tomista",
@@ -250,22 +258,23 @@ export default function LandingPage() {
                     Faça parte
                   </a>
                 </div>
-              </div>
+                </div>
+              </FadeIn>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section - Direct and professional */}
-      <section className="py-16 bg-gradient-to-b from-primary/5 to-base-100 relative">
+      {/* CTA Section - Direct and professional */}      <section className="py-16 bg-gradient-to-b from-primary/5 to-base-100 relative">
         <div className="absolute inset-0 w-full h-full opacity-50">
           <div className="w-full h-full bg-[url('/images/8.jpg')] bg-no-repeat bg-cover opacity-50"></div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto bg-base-300 p-12 rounded-lg shadow-2xl">
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="md:w-2/3">
-                <h2 className="text-4xl font-serif mb-6">Investimento para sua <span className="text-primary">Formação Integral</span></h2>
+          <FadeIn direction="up">
+            <div className="max-w-5xl mx-auto bg-base-300 p-12 rounded-lg shadow-2xl">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="md:w-2/3">
+                  <h2 className="text-4xl font-serif mb-6">Investimento para sua <span className="text-primary">Formação Integral</span></h2>
                   <div className="flex items-center gap-6 mb-6">
                   {[
                     { icon: <HiTicket className="w-10 h-10" />, text: "Acesso<br/>Vitalício" },
@@ -306,7 +315,8 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
