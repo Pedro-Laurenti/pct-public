@@ -201,7 +201,10 @@ export default function LessonPage() {
                         </div>
                         <div>
                           <h3 className="font-medium">{content.title}</h3>
-                          <p className="text-sm text-base-content/70 line-clamp-2">{content.description}</p>
+                          <div 
+                            className="text-sm text-base-content/70 line-clamp-2 my-3"
+                            dangerouslySetInnerHTML={{ __html: content.description }}
+                          ></div>
                           <span className="badge badge-sm mt-2">
                             {getContentTypeLabel(content.content_type)}
                           </span>
