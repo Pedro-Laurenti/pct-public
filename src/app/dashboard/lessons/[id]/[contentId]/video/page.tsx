@@ -54,29 +54,32 @@ export default function VideoContentPage() {
     }
   }, [lessonId, contentId]);
 
-  // Função para extrair o ID do vídeo do YouTube da URL
-  const getYouTubeEmbedUrl = (url: string) => {
+  // Função para extrair o ID do vídeo e converter para URL de embed
+  const getVideoEmbedUrl = (url: string) => {
     if (!url) return null;
     
-    // Regex para vídeos normais do YouTube
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    // Regex para Google Drive
+    const googleDriveRegex = /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
+    let match = url.match(googleDriveRegex);
+    if (match && match[1]) {
+      return `https://drive.google.com/file/d/${match[1]}/preview`;
+    }
     
     // Regex para lives do YouTube
     const youtubeLiveRegex = /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/;
-    
-    // Testar primeiro para lives
-    let match = url.match(youtubeLiveRegex);
+    match = url.match(youtubeLiveRegex);
     if (match && match[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
     
-    // Testar para vídeos normais
+    // Regex para vídeos normais do YouTube
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     match = url.match(youtubeRegex);
     if (match && match[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
     
-    // Se não for do YouTube, retornar a URL original
+    // Se não for do YouTube nem Google Drive, retornar a URL original
     return url;
   };
 
@@ -97,7 +100,7 @@ export default function VideoContentPage() {
     );
   }
 
-  const embedUrl = getYouTubeEmbedUrl(content.video_url);
+  const embedUrl = getVideoEmbedUrl(content.video_url);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
