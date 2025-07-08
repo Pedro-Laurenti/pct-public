@@ -58,10 +58,20 @@ export default function VideoContentPage() {
   const getYouTubeEmbedUrl = (url: string) => {
     if (!url) return null;
     
-    // Identificar vídeos do YouTube
+    // Regex para vídeos normais do YouTube
     const youtubeRegex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(youtubeRegex);
     
+    // Regex para lives do YouTube
+    const youtubeLiveRegex = /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/;
+    
+    // Testar primeiro para lives
+    let match = url.match(youtubeLiveRegex);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    
+    // Testar para vídeos normais
+    match = url.match(youtubeRegex);
     if (match && match[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
