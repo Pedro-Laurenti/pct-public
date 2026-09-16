@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { BiShow, BiHide } from 'react-icons/bi';
 
 type ProfileData = {
   id: number;
@@ -35,7 +36,11 @@ export default function ProfilePage() {
   // Form submit states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  
+
+  // Password visibility states
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const router = useRouter();
 
   // Fetch user data
@@ -423,31 +428,53 @@ export default function ProfilePage() {
                   <label className="label">
                     <span className="label-text font-medium">Nova Senha</span>
                   </label>
-                  <input
-                    type="password"
-                    className="input input-bordered focus:input-primary w-full"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
+                  <label className="input input-bordered focus:input-primary w-full flex items-center gap-2">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      className="grow"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      minLength={8}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword((v) => !v)}
+                      className="text-base-content/50 hover:text-base-content"
+                      tabIndex={-1}
+                      aria-label={showNewPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showNewPassword ? <BiHide /> : <BiShow />}
+                    </button>
+                  </label>
                   <label className="label">
                     <span className="label-text-alt text-base-content/70">Mínimo de 8 caracteres</span>
                   </label>
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">Confirme a Nova Senha</span>
                   </label>
-                  <input
-                    type="password"
-                    className="input input-bordered focus:input-primary w-full"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
+                  <label className="input input-bordered focus:input-primary w-full flex items-center gap-2">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="grow"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      minLength={8}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      className="text-base-content/50 hover:text-base-content"
+                      tabIndex={-1}
+                      aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showConfirmPassword ? <BiHide /> : <BiShow />}
+                    </button>
+                  </label>
                 </div>
                 
                 <div className="card-actions justify-end gap-4 mt-8">

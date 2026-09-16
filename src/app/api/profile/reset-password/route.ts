@@ -5,8 +5,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { cookies } from 'next/headers';
 
-// Chave secreta para verificar o token JWT
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
+import { SECRET_KEY } from "@/lib/auth";
 
 // Configuração do nodemailer (ajuste conforme suas necessidades)
 const transporter = nodemailer.createTransport({

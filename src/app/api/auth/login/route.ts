@@ -1,26 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
-import { subtle } from "crypto";
+import { SECRET_KEY, verifyPasswordWithMigration } from "@/lib/auth";
+import { ResultSetHeader } from "mysql2/promise";
 
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
-
-async function verifyPassword(inputPassword: string, storedHash: string): Promise<boolean> {
-  const encoder = new TextEncoder();
-  const inputHashBuffer = await subtle.digest("SHA-256", encoder.encode(inputPassword));
-  
-  // Convert ArrayBuffer to hexadecimal string
-  const inputHashHex = Array.from(new Uint8Array(inputHashBuffer))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-
-  return inputHashHex === storedHash;
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, rememberMe } = await request.json();
 
     const [rows]: any = await pool.query(
       "SELECT id, role, password_hash FROM Users WHERE email = ?",
@@ -33,25 +20,31 @@ export async function POST(request: NextRequest) {
 
     const user = rows[0];
 
-    // Verify password securely
-    const isPasswordValid = await verifyPassword(password, user.password_hash);
-    if (!isPasswordValid) {
+    const isValid = await verifyPasswordWithMigration(
+      password,
+      user.password_hash,
+      async (newHash) => {
+        await pool.query<ResultSetHeader>(
+          "UPDATE Users SET password_hash = ? WHERE id = ?",
+          [newHash, user.id]
+        );
+      }
+    );
+
+    if (!isValid) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Generate a JWT token
+    const tokenExpiry = rememberMe ? "30d" : "2h";
+    const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 : 2 * 60 * 60;
+
     const sessionToken = await new SignJWT({ userId: user.id, role: user.role })
       .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("2h")
+      .setExpirationTime(tokenExpiry)
       .sign(SECRET_KEY);
 
-    // Set cookie in the response
-    const response = NextResponse.json(
-      { message: "Login successful" },
-      { status: 200 }
-    );
+    const response = NextResponse.json({ message: "Login successful", role: user.role }, { status: 200 });
 
-    // Set cookie using the cookies() API from next/headers
     response.cookies.set({
       name: "auth_token",
       value: sessionToken,
@@ -59,15 +52,12 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 2 * 60 * 60, // 2 hours
+      maxAge: cookieMaxAge,
     });
 
     return response;
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Login error:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

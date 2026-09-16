@@ -3,7 +3,7 @@ import pool from "@/lib/db";
 import { jwtVerify } from "jose";
 import { cookies } from 'next/headers';
 
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
+import { SECRET_KEY } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   // Get route parameters from URL
@@ -118,9 +118,39 @@ export async function POST(request: NextRequest) {
 
     const allCompleted = totalStatements[0].total === answeredStatements[0].answered;
 
+    let courseCompleted = false;
+    if (allCompleted) {
+      const [[totalCourseActivities], [completedCourseActivities]]: any = await Promise.all([
+        pool.query(
+          `SELECT COUNT(DISTINCT lc.id) as total
+           FROM LessonContents lc
+           JOIN Lessons l ON lc.lesson_id = l.id
+           WHERE l.course_id = (SELECT course_id FROM Lessons WHERE id = ?)
+           AND lc.content_type = 'activity'`,
+          [lessonId]
+        ),
+        pool.query(
+          `SELECT COUNT(DISTINCT lc.id) as completed
+           FROM LessonContents lc
+           JOIN Lessons l ON lc.lesson_id = l.id
+           JOIN ActivityStatements ast ON lc.id = ast.lesson_content_id
+           JOIN ActivityOptions ao ON ast.id = ao.statement_id
+           JOIN StudentAnswers sa ON ao.id = sa.option_id AND sa.user_id = ?
+           WHERE l.course_id = (SELECT course_id FROM Lessons WHERE id = ?)
+           AND lc.content_type = 'activity'`,
+          [userId, lessonId]
+        ),
+      ]);
+
+      courseCompleted =
+        totalCourseActivities[0]?.total > 0 &&
+        totalCourseActivities[0].total === completedCourseActivities[0]?.completed;
+    }
+
     return NextResponse.json({
       correct: isCorrect,
-      completed: allCompleted
+      completed: allCompleted,
+      courseCompleted,
     });
   } catch (error) {
     console.error('Activity Answer API Error:', error);

@@ -430,15 +430,15 @@ export default function LandingPage() {
                   <h2 className="text-4xl font-serif mb-6">Investimento para sua <span className="text-primary">Formação Integral</span></h2>
                   <div className="flex items-center gap-6 mb-6">
                   {[
-                    { icon: <HiTicket className="w-10 h-10" />, text: "Acesso<br/>Vitalício" },
-                    { icon: <HiDocument className="w-10 h-10" />, text: "Módulos<br/>Contínuos" },
-                    { icon: <HiQuestionMarkCircle className="w-10 h-10" />, text: "Dúvidas<br/>Ao Vivo" }
+                    { icon: <HiTicket className="w-10 h-10" />, line1: "Acesso", line2: "Vitalício" },
+                    { icon: <HiDocument className="w-10 h-10" />, line1: "Módulos", line2: "Contínuos" },
+                    { icon: <HiQuestionMarkCircle className="w-10 h-10" />, line1: "Dúvidas", line2: "Ao Vivo" }
                   ].map((item, index) => (
                     <div key={index} className="text-center">
                       <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
                         {item.icon}
                       </div>
-                      <p className="font-semibold text-sm" dangerouslySetInnerHTML={{ __html: item.text }}></p>
+                      <p className="font-semibold text-sm">{item.line1}<br />{item.line2}</p>
                     </div>
                   ))}
                 </div>
@@ -498,8 +498,8 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm opacity-75">© {new Date().getFullYear()} - Todos os direitos reservados</p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="#" className="text-xs opacity-75 hover:opacity-100">Termos de uso</a>
-              <a href="#" className="text-xs opacity-75 hover:opacity-100">Política de privacidade</a>
+              <a href="/termos" className="text-xs opacity-75 hover:opacity-100">Termos de uso</a>
+              <a href="/privacidade" className="text-xs opacity-75 hover:opacity-100">Política de privacidade</a>
             </div>
           </div>
         </div>

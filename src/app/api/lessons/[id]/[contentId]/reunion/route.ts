@@ -3,7 +3,7 @@ import pool from "@/lib/db";
 import { jwtVerify } from "jose";
 import { cookies } from 'next/headers';
 
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
+import { SECRET_KEY } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   // Get route parameters from URL
@@ -78,9 +78,22 @@ export async function GET(request: NextRequest) {
     // Adicionar os agendamentos ao objeto de conteúdo
     contentRows[0].schedule = schedulesRows;
 
+    const [[prevRows], [nextRows]]: any = await Promise.all([
+      pool.query(
+        `SELECT id, content_type FROM LessonContents WHERE lesson_id = ? AND id < ? ORDER BY id DESC LIMIT 1`,
+        [lessonId, contentId]
+      ),
+      pool.query(
+        `SELECT id, content_type FROM LessonContents WHERE lesson_id = ? AND id > ? ORDER BY id ASC LIMIT 1`,
+        [lessonId, contentId]
+      ),
+    ]);
+
     return NextResponse.json({
       lesson: lessonRows[0],
-      content: contentRows[0]
+      content: contentRows[0],
+      prevContent: prevRows[0] || null,
+      nextContent: nextRows[0] || null,
     });
   } catch (error) {
     console.error('Reunion Content API Error:', error);

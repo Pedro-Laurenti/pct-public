@@ -3,7 +3,7 @@ import pool from "@/lib/db";
 import { jwtVerify } from "jose";
 import { cookies } from 'next/headers';
 
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
+import { SECRET_KEY } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   // Get route parameters from URL

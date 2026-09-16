@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
+import ContentNavigation from "@/components/ContentNavigation";
 import { FaArrowLeft, FaVideo } from "react-icons/fa";
+import { sanitize } from "@/lib/sanitize";
 
 interface VideoContent {
   id: number;
@@ -21,13 +23,17 @@ interface Lesson {
   course_name: string;
 }
 
+interface AdjacentContent { id: number; content_type: string; }
+
 export default function VideoContentPage() {
   const params = useParams();
   const lessonId = params?.id as string || "";
   const contentId = params?.contentId as string || "";
-  
+
   const [content, setContent] = useState<VideoContent | null>(null);
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [prevContent, setPrevContent] = useState<AdjacentContent | null>(null);
+  const [nextContent, setNextContent] = useState<AdjacentContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +48,8 @@ export default function VideoContentPage() {
         const data = await response.json();
         setContent(data.content);
         setLesson(data.lesson);
+        setPrevContent(data.prevContent);
+        setNextContent(data.nextContent);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -51,6 +59,9 @@ export default function VideoContentPage() {
 
     if (lessonId && contentId) {
       fetchVideoContent();
+    } else {
+      setError("Parâmetros inválidos.");
+      setLoading(false);
     }
   }, [lessonId, contentId]);
 
@@ -90,7 +101,6 @@ export default function VideoContentPage() {
   if (!content || !lesson) {
     return (
       <div className="p-6 max-w-4xl mx-auto text-center">
-        <div className="text-5xl mb-3 opacity-20">🎬</div>
         <p className="text-xl font-medium">Conteúdo não encontrado</p>
         <p className="text-base-content/70 mt-2">O conteúdo solicitado não existe ou você não tem acesso a ele.</p>
         <Link href={`/dashboard/lessons/${lessonId}`} className="btn btn-primary mt-4">
@@ -129,8 +139,7 @@ export default function VideoContentPage() {
           </div>
         </div>
 
-        {/* Reprodutor de vídeo incorporado - responsivo */}
-        <div className="aspect-w-16 aspect-h-9 w-full">
+        <div className="relative w-full aspect-video">
           {embedUrl ? (
             <iframe
               src={embedUrl}
@@ -138,26 +147,27 @@ export default function VideoContentPage() {
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              className="w-full h-[400px]"
+              className="absolute inset-0 w-full h-full"
             ></iframe>
           ) : (
-            <div className="flex items-center justify-center h-80 bg-base-200">
+            <div className="flex items-center justify-center h-full bg-base-200">
               <p className="text-base-content/70">URL do vídeo não disponível ou inválida</p>
             </div>
           )}
         </div>
 
-        {/* Descrição do vídeo */}
         {content.video_content && (
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4">Descrição</h2>
-            <div 
+            <div
               className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: content.video_content }}
+              dangerouslySetInnerHTML={{ __html: sanitize(content.video_content) }}
             ></div>
           </div>
         )}
       </div>
+
+      <ContentNavigation lessonId={lessonId} prevContent={prevContent} nextContent={nextContent} />
     </div>
   );
 }

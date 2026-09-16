@@ -1,52 +1,37 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import LoadingOrError from "@/components/LoadingOrError";
 
 export default function ContentRedirect() {
   const params = useParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchContentType = async () => {
-      if (!params) {
-        setError("Parâmetros não encontrados");
-        setLoading(false);
-        return;
-      }
-      const lessonId = params.id as string;
-      const contentId = params.contentId as string;
+    const lessonId = params?.id as string;
+    const contentId = params?.contentId as string;
 
-      try {
-        const response = await fetch(`/api/lessons/${lessonId}/${contentId}`);
-        if (!response.ok) {
-          throw new Error("Falha ao carregar informações do conteúdo");
-        }
-        
-        const data = await response.json();
-        
-        // Redirecionar para o tipo específico de conteúdo
-        if (data.content && data.content.content_type) {
-          router.push(`/dashboard/lessons/${lessonId}/${contentId}/${data.content.content_type}`);
-        } else {
-          throw new Error("Tipo de conteúdo não identificado");
-        }
-      } catch (err: any) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
+    if (!lessonId || !contentId) return;
 
-    if (params && params.id && params.contentId) {
-      fetchContentType();
-    }
+    fetch(`/api/lessons/${lessonId}/${contentId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        if (data.content?.content_type) {
+          router.replace(
+            `/dashboard/lessons/${lessonId}/${contentId}/${data.content.content_type}`
+          );
+        }
+      })
+      .catch(() => {
+        router.replace(`/dashboard/lessons/${lessonId}`);
+      });
   }, [params, router]);
 
-  if (!loading && error) {
-    return <LoadingOrError loading={false} error={error} />;
-  }
-
-  return <LoadingOrError loading={true} error={null} />;
+  return (
+    <div className="flex justify-center items-center h-full min-h-48">
+      <span className="loading loading-ring loading-xl" />
+    </div>
+  );
 }

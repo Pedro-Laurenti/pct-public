@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Alert from "@/components/Alert";
+import { BiShow, BiHide } from "react-icons/bi";
 
 export default function ResetPasswordPage() {
   const params = useParams();
@@ -16,6 +17,8 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [validHash, setValidHash] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Verificar se o hash é válido ao carregar a página
   useEffect(() => {
@@ -102,7 +105,7 @@ export default function ResetPasswordPage() {
         
         // Redirecionar para a página de login após 2 segundos
         setTimeout(() => {
-          router.push('/');
+          router.push('/login');
         }, 2000);
       } else {
         setMessage({ type: 'error', text: data.message });
@@ -124,10 +127,10 @@ export default function ResetPasswordPage() {
               <p className="mb-6">O link de redefinição de senha é inválido ou expirou.</p>
               <div className="card-actions justify-center">
                 <button
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push('/login')}
                   className="btn btn-primary w-full"
                 >
-                  Voltar para o início
+                  Ir para o login
                 </button>
               </div>
             </div>
@@ -185,30 +188,52 @@ export default function ResetPasswordPage() {
                   <label className="label">
                     <span className="label-text">Nova senha</span>
                   </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input input-bordered w-full"
-                    placeholder="Digite sua nova senha"
-                    required
-                    minLength={8}
-                  />
+                  <label className="input input-bordered w-full flex items-center gap-2">
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="grow"
+                      placeholder="Digite sua nova senha"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="text-base-content/50 hover:text-base-content"
+                      tabIndex={-1}
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showPassword ? <BiHide /> : <BiShow />}
+                    </button>
+                  </label>
                 </div>
                 <div className="form-control mb-6">
                   <label className="label">
                     <span className="label-text">Confirme a senha</span>
                   </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="input input-bordered w-full"
-                    placeholder="Confirme sua nova senha"
-                    required
-                  />
+                  <label className="input input-bordered w-full flex items-center gap-2">
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="grow"
+                      placeholder="Confirme sua nova senha"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      className="text-base-content/50 hover:text-base-content"
+                      tabIndex={-1}
+                      aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showConfirmPassword ? <BiHide /> : <BiShow />}
+                    </button>
+                  </label>
                 </div>
                 <div className="form-control mt-6">
                   <button
@@ -226,10 +251,10 @@ export default function ResetPasswordPage() {
             
             <div className="text-center">
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push('/login')}
                 className="btn btn-link"
               >
-                Voltar para o início
+                Voltar para o login
               </button>
             </div>
           </div>

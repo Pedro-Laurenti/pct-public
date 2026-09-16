@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
+import ContentNavigation from "@/components/ContentNavigation";
 import { FaArrowLeft, FaTasks, FaCheck, FaTimes } from "react-icons/fa";
 import Alert from "@/components/Alert";
 
@@ -31,6 +32,8 @@ interface Lesson {
   course_name: string;
 }
 
+interface AdjacentContent { id: number; content_type: string; }
+
 export default function ActivityContentPage() {
   const params = useParams();
   const lessonId = params?.id as string | undefined;
@@ -38,17 +41,15 @@ export default function ActivityContentPage() {
 
   const [statements, setStatements] = useState<ActivityStatement[]>([]);
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [prevContent, setPrevContent] = useState<AdjacentContent | null>(null);
+  const [nextContent, setNextContent] = useState<AdjacentContent | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: number }>({});
   const [submittedAnswers, setSubmittedAnswers] = useState<{ [key: number]: boolean }>({});
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
-
-  if (!lessonId || !contentId) {
-    setError("Parâmetros inválidos ou ausentes.");
-    return null;
-  }
+  const [courseCompleted, setCourseCompleted] = useState(false);
 
   useEffect(() => {
     const fetchActivityContent = async () => {
@@ -62,6 +63,8 @@ export default function ActivityContentPage() {
         setStatements(data.statements || []);
         setLesson(data.lesson);
         setCompleted(data.completed || false);
+        setPrevContent(data.prevContent);
+        setNextContent(data.nextContent);
 
         // Se já tiver respostas salvas, popular o estado
         if (data.userAnswers && data.userAnswers.length > 0) {
@@ -85,6 +88,9 @@ export default function ActivityContentPage() {
 
     if (lessonId && contentId) {
       fetchActivityContent();
+    } else {
+      setError("Parâmetros inválidos ou ausentes.");
+      setLoading(false);
     }
   }, [lessonId, contentId]);
 
@@ -127,23 +133,22 @@ export default function ActivityContentPage() {
       
       const result = await response.json();
       
-      // Marcar questão como respondida
-      setSubmittedAnswers({
-        ...submittedAnswers,
-        [statement.id]: true
+      // Marcar questão como respondida e verificar conclusão com estado atualizado
+      setSubmittedAnswers((prev) => {
+        const updated = { ...prev, [statement.id]: true };
+        const allAnswered = statements.every((s) => updated[s.id]);
+        if (allAnswered) setCompleted(true);
+        return updated;
       });
-      
-      // Mostrar mensagem de sucesso ou erro
+
+      if (result.courseCompleted) {
+        setCourseCompleted(true);
+      }
+
       if (result.correct) {
         setAlert({ type: "success", message: "Resposta correta!" });
       } else {
         setAlert({ type: "error", message: "Resposta incorreta. Tente novamente." });
-      }
-
-      // Verificar se todas as questões foram respondidas
-      const allAnswered = statements.every(s => submittedAnswers[s.id] || s.id === statement.id);
-      if (allAnswered) {
-        setCompleted(true);
       }
     } catch (err: any) {
       setAlert({ type: "error", message: err.message });
@@ -157,7 +162,6 @@ export default function ActivityContentPage() {
   if (statements.length === 0 || !lesson) {
     return (
       <div className="p-6 max-w-4xl mx-auto text-center">
-        <div className="text-5xl mb-3 opacity-20">📝</div>
         <p className="text-xl font-medium">Atividade não encontrada</p>
         <p className="text-base-content/70 mt-2">A atividade solicitada não existe ou você não tem acesso a ela.</p>
         <Link href={`/dashboard/lessons/${lessonId}`} className="btn btn-primary mt-4">
@@ -175,6 +179,26 @@ export default function ActivityContentPage() {
           message={alert.message}
           onClose={() => setAlert(null)}
         />
+      )}
+
+      {courseCompleted && (
+        <dialog className="modal modal-open">
+          <div className="modal-box text-center">
+            <h3 className="font-bold text-2xl text-success mb-2">Curso Concluido!</h3>
+            <p className="py-4 text-base-content/80">
+              Parabens! Voce concluiu todas as atividades deste curso.
+            </p>
+            <div className="modal-action justify-center">
+              <Link href="/dashboard" className="btn btn-primary">
+                Voltar ao Dashboard
+              </Link>
+              <button className="btn btn-ghost" onClick={() => setCourseCompleted(false)}>
+                Continuar revisando
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setCourseCompleted(false)} />
+        </dialog>
       )}
 
       <div className="mb-6">
@@ -305,6 +329,8 @@ export default function ActivityContentPage() {
           </div>
         )}
       </div>
+
+      <ContentNavigation lessonId={lessonId!} prevContent={prevContent} nextContent={nextContent} />
     </div>
   );
 }

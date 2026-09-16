@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
 import { FaBook, FaChalkboardTeacher, FaChevronRight, FaGraduationCap, FaVideo, FaFileAlt, FaTasks, FaUsers } from "react-icons/fa";
 
@@ -34,6 +35,8 @@ export default function LessonsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCourses, setExpandedCourses] = useState<Record<number, boolean>>({});
+  const searchParams = useSearchParams();
+  const targetCourseId = searchParams.get("course") ? Number(searchParams.get("course")) : null;
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -44,11 +47,10 @@ export default function LessonsPage() {
         }
         const data = await response.json();
         setCourses(data.courses || []);
-        
-        // Inicializa o estado expandido para cada curso (o primeiro expandido, os demais recolhidos)
+
         const initialExpandState: Record<number, boolean> = {};
         data.courses?.forEach((course: Course, index: number) => {
-          initialExpandState[course.id] = index === 0;
+          initialExpandState[course.id] = targetCourseId ? course.id === targetCourseId : index === 0;
         });
         setExpandedCourses(initialExpandState);
       } catch (err: any) {
@@ -61,7 +63,6 @@ export default function LessonsPage() {
     fetchCourses();
   }, []);
 
-  // Função para expandir/recolher um curso
   const toggleCourse = (courseId: number) => {
     setExpandedCourses(prev => ({
       ...prev,
@@ -81,18 +82,18 @@ export default function LessonsPage() {
       </h1>
 
       {courses.length === 0 ? (
-        <div className="text-center py-10">
-          <div className="text-5xl mb-3 opacity-20">📚</div>
-          <p className="text-xl font-medium">Você não está inscrito em nenhum curso.</p>
-          <p className="text-base-content/70 mt-2">Entre em contato com um administrador para ser adicionado a um curso.</p>
+        <div className="card bg-base-100 shadow-sm p-8 text-center">
+          <p className="text-xl font-medium">Voce ainda nao esta inscrito em nenhum curso.</p>
+          <p className="text-base-content/70 mt-2">
+            Entre em contato com a coordenacao para ser adicionado a um curso.
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {courses.map((course) => (
             <div key={course.id} className="card bg-base-100 shadow-sm">
               <div className="card-body p-5">
-                {/* Cabeçalho do curso com informações de progresso */}
-                <div 
+                <div
                   className="flex items-center justify-between cursor-pointer"
                   onClick={() => toggleCourse(course.id)}
                 >
@@ -103,8 +104,7 @@ export default function LessonsPage() {
                     <div>
                       <h2 className="text-xl font-semibold">{course.name}</h2>
                       <p className="text-sm text-base-content/70 mt-1">{course.description}</p>
-                      
-                      {/* Resumo dos conteúdos */}
+
                       {course.progress.contentCounts && (
                         <div className="mt-2 flex flex-wrap gap-2">
                           {course.progress.contentCounts.texts > 0 && (
@@ -114,7 +114,7 @@ export default function LessonsPage() {
                           )}
                           {course.progress.contentCounts.videos > 0 && (
                             <span className="badge badge-sm badge-outline gap-1">
-                              <FaVideo className="text-blue-500" /> {course.progress.contentCounts.videos} {course.progress.contentCounts.videos === 1 ? 'vídeo' : 'vídeos'}
+                              <FaVideo className="text-blue-500" /> {course.progress.contentCounts.videos} {course.progress.contentCounts.videos === 1 ? 'video' : 'videos'}
                             </span>
                           )}
                           {course.progress.contentCounts.activities > 0 && (
@@ -124,51 +124,48 @@ export default function LessonsPage() {
                           )}
                           {course.progress.contentCounts.reunions > 0 && (
                             <span className="badge badge-sm badge-outline gap-1">
-                              <FaUsers className="text-purple-500" /> {course.progress.contentCounts.reunions} {course.progress.contentCounts.reunions === 1 ? 'reunião' : 'reuniões'}
+                              <FaUsers className="text-purple-500" /> {course.progress.contentCounts.reunions} {course.progress.contentCounts.reunions === 1 ? 'reuniao' : 'reunioes'}
                             </span>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-6">
-                    {/* Indicador de progresso */}
                     <div className="hidden md:flex flex-col items-end">
                       <div className="flex items-center gap-2">
                         <div className="text-sm font-medium">Progresso: {course.progress.progressPercentage}%</div>
                         <div className="w-20 h-2 bg-base-200 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary" 
+                          <div
+                            className="h-full bg-primary"
                             style={{ width: `${course.progress.progressPercentage}%` }}
-                          ></div>
+                          />
                         </div>
                       </div>
                       <div className="text-xs text-base-content/70 mt-1">
                         {course.progress.completedActivities} de {course.progress.totalActivities} atividades
                       </div>
                     </div>
-                    
-                    {/* Ícone de expansão */}
+
                     <div className="btn btn-circle btn-sm btn-ghost">
                       <FaChevronRight className={`transition-transform ${expandedCourses[course.id] ? 'rotate-90' : ''}`} />
                     </div>
                   </div>
                 </div>
-                
-                {/* Lista de aulas (expandível) */}
+
                 {expandedCourses[course.id] && (
                   <div className="mt-5">
                     <h3 className="text-base font-medium mb-3 flex items-center gap-2">
                       <FaChalkboardTeacher />
                       Aulas disponíveis
                     </h3>
-                    
+
                     <div className="space-y-2">
                       {course.lessons.length > 0 ? (
                         course.lessons.map((lesson) => (
-                          <Link 
-                            href={`/dashboard/lessons/${lesson.id}`} 
+                          <Link
+                            href={`/dashboard/lessons/${lesson.id}`}
                             key={lesson.id}
                             className="block p-3 bg-base-200/50 hover:bg-base-200 rounded-lg transition-colors"
                           >
@@ -182,7 +179,7 @@ export default function LessonsPage() {
                           </Link>
                         ))
                       ) : (
-                        <p className="text-center py-3 text-base-content/70">Nenhuma aula disponível neste curso.</p>
+                        <p className="text-center py-3 text-base-content/70">Nenhuma aula disponivel neste curso.</p>
                       )}
                     </div>
                   </div>

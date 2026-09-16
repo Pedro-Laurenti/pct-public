@@ -4,8 +4,7 @@ import { jwtVerify } from "jose";
 import { subtle } from "crypto";
 import { cookies } from 'next/headers';
 
-// Chave secreta para verificar o token JWT
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key");
+import { SECRET_KEY } from "@/lib/auth";
 
 // Função para gerar hash da senha usando o mesmo método do login.ts
 async function hashPassword(password: string): Promise<string> {

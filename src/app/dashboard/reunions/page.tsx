@@ -668,7 +668,6 @@ export default function ReunionsPage() {
           
           {selectedReunions.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-4xl md:text-5xl mb-3 opacity-20">📅</div>
               <p className="text-base-content/70">Nenhuma reunião agendada para esta data.</p>
             </div>
           ) : (

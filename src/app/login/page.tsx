@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Alert from "@/components/Alert";
-import { BiKey, BiUser } from "react-icons/bi";
+import Link from "next/link";
+import { BiKey, BiUser, BiShow, BiHide } from "react-icons/bi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
   // Verifica se o cookie de autenticação já existe
@@ -23,7 +26,8 @@ export default function LoginPage() {
         });
 
         if (response.ok) {
-          router.push("/dashboard"); // Redireciona para o dashboard
+          const data = await response.json();
+          router.push(data.user?.role === "mentor" ? "/admin" : "/dashboard");
         }
       } catch (err) {
         console.error("Erro ao verificar autenticação:", err);
@@ -52,7 +56,7 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const elapsedTime = Date.now() - startTime;
@@ -64,8 +68,8 @@ export default function LoginPage() {
       }
 
       if (response.ok) {
-        // Não desativa o loading aqui para manter o botão carregando até o redirecionamento
-        router.push("/dashboard");
+        const data = await response.json();
+        router.push(data.role === "mentor" ? "/admin" : "/dashboard");
       } else {
         // Desativa o loading apenas em caso de erro
         setLoading(false);
@@ -115,13 +119,37 @@ export default function LoginPage() {
           <label className="input">
             <BiKey />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="text-base-content/50 hover:text-base-content"
+              tabIndex={-1}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPassword ? <BiHide /> : <BiShow />}
+            </button>
           </label>
+
+          <div className="flex items-center justify-between mt-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm checkbox-primary"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <span className="label-text">Lembrar de mim</span>
+            </label>
+            <Link href="/forgot-password" className="link link-hover text-sm text-primary">
+              Esqueci minha senha
+            </Link>
+          </div>
 
           <button
             type="submit"

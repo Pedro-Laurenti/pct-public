@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
+import ContentNavigation from "@/components/ContentNavigation";
 import { FaArrowLeft, FaUsers, FaCalendarAlt, FaClock, FaExternalLinkAlt } from "react-icons/fa";
+import { sanitize } from "@/lib/sanitize";
 
 interface ReunionContent {
   id: number;
@@ -30,6 +32,8 @@ interface Lesson {
   course_name: string;
 }
 
+interface AdjacentContent { id: number; content_type: string; }
+
 export default function ReunionContentPage() {
   const params = useParams();
   const lessonId = params?.id as string | undefined;
@@ -37,14 +41,10 @@ export default function ReunionContentPage() {
 
   const [content, setContent] = useState<ReunionContent | null>(null);
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [prevContent, setPrevContent] = useState<AdjacentContent | null>(null);
+  const [nextContent, setNextContent] = useState<AdjacentContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  if (!lessonId || !contentId) {
-    setError("Parâmetros inválidos.");
-    setLoading(false);
-    return null;
-  }
 
   useEffect(() => {
     const fetchReunionContent = async () => {
@@ -57,6 +57,8 @@ export default function ReunionContentPage() {
         const data = await response.json();
         setContent(data.content);
         setLesson(data.lesson);
+        setPrevContent(data.prevContent);
+        setNextContent(data.nextContent);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -66,6 +68,9 @@ export default function ReunionContentPage() {
 
     if (lessonId && contentId) {
       fetchReunionContent();
+    } else {
+      setError("Parâmetros inválidos.");
+      setLoading(false);
     }
   }, [lessonId, contentId]);
 
@@ -119,7 +124,6 @@ export default function ReunionContentPage() {
   if (!content || !lesson) {
     return (
       <div className="p-6 max-w-4xl mx-auto text-center">
-        <div className="text-5xl mb-3 opacity-20">👥</div>
         <p className="text-xl font-medium">Reunião não encontrada</p>
         <p className="text-base-content/70 mt-2">A reunião solicitada não existe ou você não tem acesso a ela.</p>
         <Link href={`/dashboard/lessons/${lessonId}`} className="btn btn-primary mt-4">
@@ -160,7 +164,7 @@ export default function ReunionContentPage() {
               <h2 className="text-lg font-semibold mb-3">Descrição</h2>
               <div 
                 className="prose max-w-none bg-base-200/50 p-4 rounded-lg"
-                dangerouslySetInnerHTML={{ __html: content.reunion_description }}
+                dangerouslySetInnerHTML={{ __html: sanitize(content.reunion_description) }}
               ></div>
             </div>
           )}
@@ -248,6 +252,8 @@ export default function ReunionContentPage() {
       <div className="mt-6 text-sm text-base-content/70">
         <p>Caso tenha problemas para acessar a reunião, entre em contato com o suporte.</p>
       </div>
+
+      <ContentNavigation lessonId={lessonId!} prevContent={prevContent} nextContent={nextContent} />
     </div>
   );
 }

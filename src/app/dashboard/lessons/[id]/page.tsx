@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
 import { FaArrowLeft, FaVideo, FaFileAlt, FaTasks, FaUsers, FaChevronRight } from "react-icons/fa";
+import { sanitize } from "@/lib/sanitize";
 
 interface Lesson {
   id: number;
@@ -39,11 +40,6 @@ export default function LessonPage() {
     activities: 0,
     reunions: 0
   });
-
-  if (!lessonId) {
-    setError("Parâmetros inválidos ou ausentes.");
-    return null;
-  }
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
@@ -82,6 +78,9 @@ export default function LessonPage() {
 
     if (lessonId) {
       fetchLessonDetails();
+    } else {
+      setError("Parâmetros inválidos ou ausentes.");
+      setLoading(false);
     }
   }, [lessonId]);
 
@@ -203,7 +202,7 @@ export default function LessonPage() {
                           <h3 className="font-medium">{content.title}</h3>
                           <div 
                             className="text-sm text-base-content/70 line-clamp-2 my-3"
-                            dangerouslySetInnerHTML={{ __html: content.description }}
+                            dangerouslySetInnerHTML={{ __html: sanitize(content.description) }}
                           ></div>
                           <span className="badge badge-sm mt-2">
                             {getContentTypeLabel(content.content_type)}
@@ -223,7 +222,6 @@ export default function LessonPage() {
         </>
       ) : (
         <div className="text-center py-10">
-          <div className="text-5xl mb-3 opacity-20">🔍</div>
           <p className="text-xl font-medium">Aula não encontrada</p>
           <p className="text-base-content/70 mt-2">A aula solicitada não existe ou você não tem acesso a ela.</p>
           <Link href="/dashboard/lessons" className="btn btn-primary mt-4">

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { FaBook, FaCalendarAlt, FaChartLine, FaClipboardCheck, FaGraduationCap, FaClock, FaTrophy, FaUserGraduate, FaChalkboardTeacher, FaCheck, FaInfo } from 'react-icons/fa';
+import Link from 'next/link';
 import LoadingOrError from '@/components/LoadingOrError';
 import { useRouter } from 'next/navigation';
 
-// Interface definitions
 interface User {
   id: number;
   name: string;
@@ -75,159 +75,113 @@ interface DashboardData {
   stats: UserStats;
 }
 
-export default function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activeReunionTab, setActiveReunionTab] = useState('upcoming');
-  const router = useRouter();
-  
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch('/api/dashboard');
-        if (!response.ok) {
-          if (response.status === 401) {
-            window.location.href = '/';
-            return;
-          }
-          throw new Error(`Erro ao carregar dados: ${response.statusText}`);
-        }
-        
-        const dashboardData = await response.json();
-        setData(dashboardData);
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro desconhecido');
-        setLoading(false);
-      }
-    };
+// --- Utilitários e componentes puros no escopo do módulo ---
 
-    fetchDashboardData();
-  }, []);
-
-  if (loading || error) {
-    return <LoadingOrError loading={loading} error={error} />;
-  }
-
-  // Utils
-  const formatUtils = {
-    date: (dateStr: string) => {
-      if (!dateStr) return '';
-      try {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) throw new Error('Data inválida');
-        return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-      } catch (e) {
-        return dateStr;
-      }
-    },
-    
-    time: (timeStr: string) => {
-      if (!timeStr) return '';
-      try {
-        if (timeStr.includes('T')) {
-          const date = new Date(timeStr);
-          return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        }
-        return timeStr.substring(0, 5);
-      } catch (e) {
-        return timeStr;
-      }
-    },
-    
-    dateTime: (dateStr: string, timeStr: string) => {
-      if (!dateStr) return '';
-      try {
-        const date = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T${timeStr}`);
-        if (isNaN(date.getTime())) throw new Error('Data ou hora inválida');
-        return new Intl.DateTimeFormat('pt-BR', {
-          day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        }).format(date);
-      } catch (e) {
-        return `${formatUtils.date(dateStr)} ${formatUtils.time(timeStr)}`;
-      }
-    },
-    
-    timeRemaining: (dateStr: string, timeStr: string) => {
-      if (!dateStr) return '';
-      try {
-        const now = new Date();
-        const dateFormat = dateStr.includes('T') ? dateStr : `${dateStr}T${timeStr}`;
-        let meetingDate = new Date(dateFormat);
-        
-        if (isNaN(meetingDate.getTime())) {
-          const [year, month, day] = dateStr.split('-').map(Number);
-          const [hours, minutes] = timeStr.split(':').map(Number);
-          meetingDate = new Date(year, month - 1, day, hours, minutes);
-        }
-        
-        const diffMs = meetingDate.getTime() - now.getTime();
-        if (diffMs <= 0) return 'Agora!';
-        
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        
-        if (diffDays > 0) return `Em ${diffDays} dia${diffDays > 1 ? 's' : ''}`;
-        if (diffHours > 0) return `Em ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
-        return `Em ${diffMinutes} minuto${diffMinutes > 1 ? 's' : ''}`;
-      } catch (e) {
-        return 'Em breve';
-      }
+const formatUtils = {
+  date: (dateStr: string) => {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) throw new Error('Data inválida');
+      return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+    } catch {
+      return dateStr;
     }
-  };
+  },
 
-  // Dados principais
-  const nextReunion = data?.upcomingReunions?.[0];
-  const { completedActivities, pendingActivities, totalActivities, overallProgress } = data?.stats || {
-    completedActivities: 0, pendingActivities: 0, totalActivities: 0, overallProgress: 0
-  };
-  
-  const performance = (() => {
-    if (overallProgress >= 80) return { level: 'Excelente', color: 'text-success' };
-    if (overallProgress >= 60) return { level: 'Bom', color: 'text-accent' };
-    if (overallProgress >= 40) return { level: 'Regular', color: 'text-warning' };
-    return { level: 'Iniciante', color: 'text-info' };
-  })();
-  
-  const filteredCourses = data?.courses.filter(course => {
-    if (activeCategory === 'all') return true;
-    if (activeCategory === 'in-progress') return course.progress.progressPercentage > 0 && course.progress.progressPercentage < 100;
-    if (activeCategory === 'completed') return course.progress.progressPercentage === 100;
-    return activeCategory === 'not-started' && course.progress.progressPercentage === 0;
-  });
-  
-  // Componentes reutilizáveis
-  const ProgressBar = ({ percentage, className = "" }: { percentage: number; className?: string }) => (
+  time: (timeStr: string) => {
+    if (!timeStr) return '';
+    try {
+      if (timeStr.includes('T')) {
+        return new Date(timeStr).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+      return timeStr.substring(0, 5);
+    } catch {
+      return timeStr;
+    }
+  },
+
+  dateTime: (dateStr: string, timeStr: string) => {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T${timeStr}`);
+      if (isNaN(date.getTime())) throw new Error('Data ou hora inválida');
+      return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      }).format(date);
+    } catch {
+      return `${formatUtils.date(dateStr)} ${formatUtils.time(timeStr)}`;
+    }
+  },
+
+  timeRemaining: (dateStr: string, timeStr: string) => {
+    if (!dateStr) return '';
+    try {
+      const now = new Date();
+      const dateFormat = dateStr.includes('T') ? dateStr : `${dateStr}T${timeStr}`;
+      let meetingDate = new Date(dateFormat);
+
+      if (isNaN(meetingDate.getTime())) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        meetingDate = new Date(year, month - 1, day, hours, minutes);
+      }
+
+      const diffMs = meetingDate.getTime() - now.getTime();
+      if (diffMs <= 0) return 'Agora!';
+
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (diffDays > 0) return `Em ${diffDays} dia${diffDays > 1 ? 's' : ''}`;
+      if (diffHours > 0) return `Em ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+      return `Em ${diffMinutes} minuto${diffMinutes > 1 ? 's' : ''}`;
+    } catch {
+      return 'Em breve';
+    }
+  },
+};
+
+function ProgressBar({ percentage, className = "" }: { percentage: number; className?: string }) {
+  return (
     <div className="w-full bg-base-300 rounded-full h-2">
-      <div 
-        className={`rounded-full h-2 ${className || 
-          (percentage >= 80 ? 'bg-success' : 
-           percentage >= 40 ? 'bg-primary' : 
+      <div
+        className={`rounded-full h-2 ${className ||
+          (percentage >= 80 ? 'bg-success' :
+           percentage >= 40 ? 'bg-primary' :
            'bg-warning')}`}
         style={{ width: `${percentage}%` }}
-      ></div>
+      />
     </div>
   );
+}
 
-  // Componentes das seções
-  const UserHeader = () => (
+// --- Componentes de seção com props explícitas ---
+
+interface UserHeaderProps {
+  data: DashboardData;
+  overallProgress: number;
+  completedActivities: number;
+  totalActivities: number;
+  performance: { level: string; color: string; desc: string };
+}
+
+function UserHeader({ data, overallProgress, completedActivities, totalActivities, performance }: UserHeaderProps) {
+  return (
     <div className="hero bg-base-100 mb-6 rounded-box shadow-sm">
       <div className="hero-content flex-col lg:flex-row py-4 md:py-8">
         <div className="lg:pr-12">
-        <div className="bg-primary text-primary-content rounded-full w-20 aspect-square flex items-center justify-center font-bold text-3xl">
-            {data?.user.name.charAt(0).toUpperCase()}
+          <div className="bg-primary text-primary-content rounded-full w-20 aspect-square flex items-center justify-center font-bold text-3xl">
+            {data.user.name.charAt(0).toUpperCase()}
           </div>
         </div>
-        
+
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <h1 className="text-3xl md:text-4xl font-bold">Olá, {data?.user.name.split(' ')[0]}!</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">Olá, {data.user.name.split(' ')[0]}!</h1>
             <div className="badge badge-lg badge-primary">
-              {data?.user.role === 'student' ? (
+              {data.user.role === 'student' ? (
                 <span className="flex items-center gap-1"><FaUserGraduate /> Aluno</span>
               ) : (
                 <span className="flex items-center gap-1"><FaChalkboardTeacher /> Mentor</span>
@@ -237,42 +191,49 @@ export default function Dashboard() {
           <p className="py-2 text-md md:text-lg text-base-content/80">
             Seja bem-vindo(a) à sua área de estudos. Continue acompanhando seus cursos e atividades.
           </p>
-          
+
           <div className="stats stats-vertical md:stats-horizontal shadow mt-2">
             <div className="stat">
               <div className="stat-figure text-primary"><FaGraduationCap className="text-2xl" /></div>
               <div className="stat-title">Cursos</div>
-              <div className="stat-value text-primary">{data?.courses.length || 0}</div>
+              <div className="stat-value text-primary">{data.courses.length}</div>
               <div className="stat-desc">Matriculados</div>
             </div>
-            
+
             <div className="stat">
               <div className="stat-figure text-secondary"><FaClipboardCheck className="text-2xl" /></div>
               <div className="stat-title">Atividades</div>
               <div className="stat-value text-secondary">{overallProgress}%</div>
               <div className="stat-desc">{completedActivities} de {totalActivities} concluídas</div>
             </div>
-            
+
             <div className="stat">
               <div className={`stat-figure ${performance.color}`}><FaTrophy className="text-2xl" /></div>
               <div className="stat-title">Desempenho</div>
               <div className={`stat-value ${performance.color}`}>{performance.level}</div>
-              <div className="stat-desc">Continue assim!</div>
+              <div className="stat-desc">{performance.desc}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
+}
 
-  const NavigationTabs = () => (
+interface NavigationTabsProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
+
+function NavigationTabs({ activeTab, setActiveTab }: NavigationTabsProps) {
+  return (
     <div className="tabs tabs-boxed bg-base-100 mb-6 px-2 justify-center">
       {[
         { id: 'overview', label: 'Visão Geral' },
         { id: 'courses', label: 'Meus Cursos' },
         { id: 'activities', label: 'Atividades' }
       ].map(tab => (
-        <a 
+        <a
           key={tab.id}
           className={`tab tab-lg ${activeTab === tab.id ? 'tab-active' : ''}`}
           onClick={() => setActiveTab(tab.id)}
@@ -282,55 +243,77 @@ export default function Dashboard() {
       ))}
     </div>
   );
+}
 
-  // Seções da Visão Geral
-  const NextReunionAlert = () => (
-    data?.upcomingReunions && data.upcomingReunions.length > 0 ? (
-      <div className="card bg-primary text-primary-content shadow-xl mb-6 overflow-hidden">
-        <div className="card-body p-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="card-title text-xl flex items-center gap-2">
-                <FaClock /> Próxima Reunião Agendada
-              </h2>
-              <div className="badge badge-outline badge-lg mt-2 mb-1">
-                {formatUtils.timeRemaining(nextReunion?.scheduled_date || '', nextReunion?.scheduled_time || '')}
-              </div>
-              <p className="text-lg font-semibold mt-1">{nextReunion?.reunion_title}</p>
-              <p className="opacity-90">{nextReunion?.course_name} - {nextReunion?.lesson_title}</p>
-              <div className="flex flex-wrap items-center gap-2 mt-2">
-                <span className="badge badge-outline">
-                  {formatUtils.dateTime(nextReunion?.scheduled_date || '', nextReunion?.scheduled_time || '')}
-                </span>
-                <span className="badge badge-outline">
-                  Duração: {nextReunion?.duration_minutes} min
-                </span>
-              </div>
+interface NextReunionAlertProps {
+  data: DashboardData;
+  nextReunion: Reunion | undefined;
+}
+
+function NextReunionAlert({ data, nextReunion }: NextReunionAlertProps) {
+  if (!data.upcomingReunions || data.upcomingReunions.length === 0) return null;
+
+  return (
+    <div className="card bg-primary text-primary-content shadow-xl mb-6 overflow-hidden">
+      <div className="card-body p-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="card-title text-xl flex items-center gap-2">
+              <FaClock /> Próxima Reunião Agendada
+            </h2>
+            <div className="badge badge-outline badge-lg mt-2 mb-1">
+              {formatUtils.timeRemaining(nextReunion?.scheduled_date || '', nextReunion?.scheduled_time || '')}
             </div>
-            
-            {nextReunion?.reunion_url && (
-              <a 
-                href={nextReunion.reunion_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="btn btn-outline glass mt-0 md:mt-0 w-full md:w-auto"
-              >
-                Acessar Reunião
-              </a>
-            )}
+            <p className="text-lg font-semibold mt-1">{nextReunion?.reunion_title}</p>
+            <p className="opacity-90">{nextReunion?.course_name} - {nextReunion?.lesson_title}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className="badge badge-outline">
+                {formatUtils.dateTime(nextReunion?.scheduled_date || '', nextReunion?.scheduled_time || '')}
+              </span>
+              <span className="badge badge-outline">
+                Duração: {nextReunion?.duration_minutes} min
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="bg-primary-focus text-primary-content p-2 text-center text-sm">
-          <p>Prepare-se com antecedência e verifique sua conexão antes da reunião</p>
+
+          {nextReunion?.reunion_url && (
+            <a
+              href={nextReunion.reunion_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline glass mt-0 md:mt-0 w-full md:w-auto"
+            >
+              Acessar Reunião
+            </a>
+          )}
         </div>
       </div>
-    ) : null
+      <div className="bg-primary-focus text-primary-content p-2 text-center text-sm">
+        <p>Prepare-se com antecedência e verifique sua conexão antes da reunião</p>
+      </div>
+    </div>
   );
-  
-  // Componentes das seções principais - visão geral, cursos e atividades
-  const OverviewSection = () => (
+}
+
+interface OverviewSectionProps {
+  data: DashboardData;
+  nextReunion: Reunion | undefined;
+  overallProgress: number;
+  completedActivities: number;
+  pendingActivities: number;
+  totalActivities: number;
+  activeReunionTab: string;
+  setActiveReunionTab: (tab: string) => void;
+  router: ReturnType<typeof useRouter>;
+}
+
+function OverviewSection({
+  data, nextReunion, overallProgress, completedActivities, pendingActivities, totalActivities,
+  activeReunionTab, setActiveReunionTab, router
+}: OverviewSectionProps) {
+  return (
     <div className="p-2 md:p-4">
-      <NextReunionAlert />
+      <NextReunionAlert data={data} nextReunion={nextReunion} />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Cursos */}
         <div className="md:col-span-8">
@@ -339,8 +322,8 @@ export default function Dashboard() {
               <h2 className="card-title flex items-center mb-4 gap-2">
                 <FaBook className="text-primary" /> Seus Cursos
               </h2>
-              
-              {!data?.courses || data.courses.length === 0 ? (
+
+              {!data.courses || data.courses.length === 0 ? (
                 <div className="alert alert-info">
                   <FaInfo className="mr-2" />
                   <p>Você ainda não está matriculado em nenhum curso.</p>
@@ -353,12 +336,12 @@ export default function Dashboard() {
                         <div className="card-body p-4">
                           <h3 className="card-title text-lg">{course.name}</h3>
                           <p className="line-clamp-2 text-sm text-base-content/80 mb-2">{course.description}</p>
-                          
+
                           <div className="flex items-center gap-2 mt-1">
                             <span className="badge badge-sm">{course.lessons.length} aulas</span>
                             <span className="badge badge-sm badge-primary">{course.progress.completedActivities} atividades</span>
                           </div>
-                          
+
                           <div className="flex flex-col gap-1 mt-3">
                             <div className="flex justify-between text-xs mb-1">
                               <span>Progresso</span>
@@ -366,7 +349,7 @@ export default function Dashboard() {
                             </div>
                             <ProgressBar percentage={course.progress.progressPercentage} />
                           </div>
-                          
+
                           {course.lessons.length > 0 && (
                             <div className="mt-3">
                               <div className="divider my-1 text-xs">Últimas aulas</div>
@@ -374,7 +357,7 @@ export default function Dashboard() {
                                 {course.lessons.slice(0, 2).map((lesson) => (
                                   <li key={lesson.id} className="truncate hover:text-primary">
                                     <a href={`/dashboard/lessons/${lesson.id}`} className="flex items-center text-sm">
-                                      <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                                      <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2" />
                                       {lesson.title}
                                     </a>
                                   </li>
@@ -382,9 +365,9 @@ export default function Dashboard() {
                               </ul>
                             </div>
                           )}
-                          
+
                           <div className="card-actions justify-end mt-4">
-                            <a href={`/dashboard/lessons`} className="btn btn-primary btn-sm">Acessar</a>
+                            <Link href={`/dashboard/lessons?course=${course.id}`} className="btn btn-primary btn-sm">Acessar</Link>
                           </div>
                         </div>
                       </div>
@@ -403,7 +386,7 @@ export default function Dashboard() {
               <h2 className="card-title flex items-center gap-2">
                 <FaClipboardCheck className="text-accent" /> Atividades Pendentes
               </h2>
-              
+
               {pendingActivities === 0 ? (
                 <div className="alert alert-success mt-3">
                   <FaCheck />
@@ -413,18 +396,16 @@ export default function Dashboard() {
                 <>
                   <div className="flex justify-center my-4 relative">
                     <div className="radial-progress text-accent absolute z-20" style={{"--value": overallProgress, "--size": "8rem", "--thickness": "0.8rem"} as any}>
-
                       <span className="text-2xl font-bold">{overallProgress}%</span>
                     </div>
-                    <div className="radial-progress text-base-300" style={{"--value": 100, "--size": "8rem", "--thickness": "0.8rem"} as any}>
-                    </div>
+                    <div className="radial-progress text-base-300" style={{"--value": 100, "--size": "8rem", "--thickness": "0.8rem"} as any} />
                   </div>
 
                   <div className="menu bg-base-100 rounded-box mt-4 w-full">
-                    {data?.pendingActivities.slice(0, 2).map((activity) => (
-                      <div key={activity.content_id} className='w-full'>
-                        <div 
-                          onClick={() => router.push(`/dashboard/lessons`)} 
+                    {data.pendingActivities.slice(0, 2).map((activity) => (
+                      <div key={activity.content_id} className="w-full">
+                        <div
+                          onClick={() => router.push(`/dashboard/lessons/${activity.lesson_id}/${activity.content_id}`)}
                           className="hover:bg-base-300 w-full cursor-pointer p-2 rounded"
                         >
                           <div className="w-full flex items-center justify-between">
@@ -436,14 +417,14 @@ export default function Dashboard() {
                           </p>
                           <div className="text-xs mt-1">
                             <span className="badge badge-sm badge-outline">
-                            {activity.statement_count} {activity.statement_count > 1 ? 'questões' : 'questão'}
+                              {activity.statement_count} {activity.statement_count > 1 ? 'questões' : 'questão'}
                             </span>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="card-actions justify-center mt-4">
                     <a href="/dashboard/activities" className="btn btn-outline btn-accent btn-sm">
                       Ver todas as atividades
@@ -455,7 +436,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6">
         {/* Progresso */}
         <div className="md:col-span-5">
@@ -464,7 +445,7 @@ export default function Dashboard() {
               <h2 className="card-title flex items-center gap-2 mb-4">
                 <FaChartLine className="text-primary" /> Seu Progresso
               </h2>
-              
+
               <div className="overflow-x-auto">
                 <table className="table table-zebra table-sm">
                   <thead>
@@ -475,7 +456,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data?.courses.map((course) => (
+                    {data.courses.map((course) => (
                       <tr key={course.id}>
                         <td>{course.name}</td>
                         <td><ProgressBar percentage={course.progress.progressPercentage} /></td>
@@ -485,14 +466,14 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-              
+
               <div className="stats bg-base-100 text-base-content mt-4">
                 <div className="stat">
                   <div className="stat-title">Total</div>
                   <div className="stat-value text-primary">{totalActivities}</div>
                   <div className="stat-desc">{completedActivities} concluídas</div>
                 </div>
-                
+
                 <div className="stat">
                   <div className="stat-title">Pendentes</div>
                   <div className="stat-value text-secondary">{pendingActivities}</div>
@@ -510,17 +491,17 @@ export default function Dashboard() {
               <h2 className="card-title flex items-center gap-2 mb-4">
                 <FaCalendarAlt className="text-secondary" /> Reuniões
               </h2>
-              
+
               <div className="tabs tabs-boxed mb-4 justify-center">
-                <a className={`tab ${activeReunionTab === 'upcoming' ? 'tab-active' : ''}`} 
+                <a className={`tab ${activeReunionTab === 'upcoming' ? 'tab-active' : ''}`}
                    onClick={() => setActiveReunionTab('upcoming')}>Próximas</a>
-                <a className={`tab ${activeReunionTab === 'past' ? 'tab-active' : ''}`} 
+                <a className={`tab ${activeReunionTab === 'past' ? 'tab-active' : ''}`}
                    onClick={() => setActiveReunionTab('past')}>Passadas</a>
               </div>
-              
+
               {activeReunionTab === 'upcoming' ? (
                 <>
-                  {data?.upcomingReunions && data.upcomingReunions.length === 0 ? (
+                  {data.upcomingReunions.length === 0 ? (
                     <div className="alert">
                       <FaInfo className="mr-2" />
                       <p>Não há reuniões futuras agendadas.</p>
@@ -538,7 +519,7 @@ export default function Dashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {data?.upcomingReunions.map((reunion, index) => (
+                          {data.upcomingReunions.map((reunion, index) => (
                             <tr key={`upcoming-${reunion.id}-${index}`} className="hover">
                               <td>
                                 <div className="badge badge-sm badge-outline badge-success" title="Tempo restante">
@@ -574,7 +555,7 @@ export default function Dashboard() {
                 </>
               ) : (
                 <>
-                  {!data?.pastReunions || data.pastReunions.length === 0 ? (
+                  {!data.pastReunions || data.pastReunions.length === 0 ? (
                     <div className="alert">
                       <FaInfo className="mr-2" />
                       <p>Nenhuma reunião passada encontrada.</p>
@@ -607,11 +588,7 @@ export default function Dashboard() {
                                 <div className="text-xs">{formatUtils.time(reunion.scheduled_time)}</div>
                               </td>
                               <td>
-                                {reunion.reunion_url && (
-                                  <a title="Ver gravação ou materiais" className="btn btn-sm btn-ghost btn-outline">
-                                    Expirado
-                                  </a>
-                                )}
+                                <span className="badge badge-ghost">Encerrada</span>
                               </td>
                             </tr>
                           ))}
@@ -627,29 +604,38 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
 
-  const CoursesSection = () => (
+interface CoursesSectionProps {
+  data: DashboardData;
+  activeCategory: string;
+  setActiveCategory: (cat: string) => void;
+  filteredCourses: Course[] | undefined;
+}
+
+function CoursesSection({ data, activeCategory, setActiveCategory, filteredCourses }: CoursesSectionProps) {
+  return (
     <div className="p-2 md:p-4">
       <div className="flex flex-wrap gap-2 mb-6 justify-center">
-        <button 
+        <button
           className={`btn btn-sm ${activeCategory === 'all' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveCategory('all')}
         >
-          Todos ({data?.courses.length})
+          Todos ({data.courses.length})
         </button>
-        <button 
+        <button
           className={`btn btn-sm ${activeCategory === 'in-progress' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveCategory('in-progress')}
         >
           Em Progresso
         </button>
-        <button 
+        <button
           className={`btn btn-sm ${activeCategory === 'completed' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveCategory('completed')}
         >
           Concluídos
         </button>
-        <button 
+        <button
           className={`btn btn-sm ${activeCategory === 'not-started' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveCategory('not-started')}
         >
@@ -665,21 +651,21 @@ export default function Dashboard() {
                 <h2 className="card-title">{course.name}</h2>
                 <div className="badge badge-lg" style={{
                   backgroundColor: course.progress.progressPercentage === 100 ? 'var(--success)' :
-                                  course.progress.progressPercentage > 0 ? 'var(--primary)' : 
+                                  course.progress.progressPercentage > 0 ? 'var(--primary)' :
                                   'var(--neutral)'
                 }}>
                   {course.progress.progressPercentage}%
                 </div>
               </div>
               <p className="mb-4 text-base-content/80">{course.description}</p>
-              
+
               <div className="stats stats-vertical bg-base-100 shadow mb-2">
                 <div className="stat place-items-center">
                   <div className="stat-title">Total Conteúdos</div>
                   <div className="stat-value">{course.progress.totalContents}</div>
                   <div className="stat-desc">Vídeos, textos e atividades</div>
                 </div>
-                
+
                 <div className="stat place-items-center">
                   <div className="stat-title">Atividades</div>
                   <div className="stat-value">{course.progress.completedActivities}/{course.progress.totalActivities}</div>
@@ -687,25 +673,25 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <ProgressBar 
-                percentage={course.progress.progressPercentage} 
-                className={course.progress.progressPercentage >= 80 ? 'bg-success' : 
-                         course.progress.progressPercentage >= 40 ? 'bg-primary' : 
+              <ProgressBar
+                percentage={course.progress.progressPercentage}
+                className={course.progress.progressPercentage >= 80 ? 'bg-success' :
+                         course.progress.progressPercentage >= 40 ? 'bg-primary' :
                          'bg-warning'}
               />
-              
+
               <div className="collapse collapse-arrow bg-base-100 mt-4">
-                <input type="checkbox" /> 
+                <input type="checkbox" />
                 <div className="collapse-title font-medium">Conteúdo do curso</div>
-                <div className="collapse-content"> 
+                <div className="collapse-content">
                   {course.lessons.length > 0 ? (
                     <ul className="menu bg-base-100 rounded-box">
                       {course.lessons.map((lesson) => (
                         <li key={lesson.id}>
-                          <a href={`/lesson`}>
+                          <Link href={`/dashboard/lessons/${lesson.id}`}>
                             <FaBook className="text-primary" />
                             {lesson.title}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                       {course.lessons.length > 5 && (
@@ -719,17 +705,17 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
-              
+
               <div className="card-actions justify-end mt-4">
-                <a href={`/dashboard/lessons`} className="btn btn-primary">
+                <Link href={`/dashboard/lessons?course=${course.id}`} className="btn btn-primary">
                   Acessar curso
-                </a>
+                </Link>
               </div>
             </div>
           </div>
         ))}
       </div>
-      
+
       {filteredCourses?.length === 0 && (
         <div className="alert alert-info">
           <FaInfo className="mr-2" />
@@ -738,28 +724,38 @@ export default function Dashboard() {
       )}
     </div>
   );
+}
 
-  const ActivitiesSection = () => (
+interface ActivitiesSectionProps {
+  data: DashboardData;
+  overallProgress: number;
+  completedActivities: number;
+  pendingActivities: number;
+  totalActivities: number;
+}
+
+function ActivitiesSection({ data, overallProgress, completedActivities, pendingActivities, totalActivities }: ActivitiesSectionProps) {
+  return (
     <div className="p-2 md:p-4">
       <div className="card bg-base-100 shadow-xl border border-base-200">
         <div className="card-body p-4">
           <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
             <h2 className="card-title">Atividades Pendentes</h2>
-            
+
             <div className="stats bg-base-100 shadow stats-horizontal">
               <div className="stat p-2">
                 <div className="stat-title text-xs">Concluídas</div>
                 <div className="stat-value text-primary text-xl">{completedActivities}</div>
               </div>
-              
+
               <div className="stat p-2">
                 <div className="stat-title text-xs">Pendentes</div>
                 <div className="stat-value text-secondary text-xl">{pendingActivities}</div>
               </div>
             </div>
           </div>
-          
-          {data?.pendingActivities.length === 0 ? (
+
+          {data.pendingActivities.length === 0 ? (
             <div className="alert alert-success">
               <FaCheck />
               <span>Todas as atividades foram concluídas!</span>
@@ -776,7 +772,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.pendingActivities.map((activity) => (
+                  {data.pendingActivities.map((activity) => (
                     <tr key={activity.content_id} className="hover">
                       <td className="font-medium">{activity.course_name}</td>
                       <td>{activity.lesson_title}</td>
@@ -789,8 +785,8 @@ export default function Dashboard() {
                         </div>
                       </td>
                       <td>
-                        <a 
-                          href={`/dashboard/lessons/${activity.lesson_id}/${activity.content_id}`} 
+                        <a
+                          href={`/dashboard/lessons/${activity.lesson_id}/${activity.content_id}`}
                           className="btn btn-sm btn-accent"
                         >
                           Responder
@@ -802,16 +798,16 @@ export default function Dashboard() {
               </table>
             </div>
           )}
-          
+
           <div className="w-full bg-base-100 rounded-full h-4 mt-6">
-            <div 
+            <div
               className="bg-primary text-xs font-medium text-primary-content text-center p-0.5 leading-none rounded-full"
               style={{ width: `${overallProgress}%` }}
             >
               {overallProgress}%
             </div>
           </div>
-          
+
           <div className="card-actions justify-center mt-6">
             <div className="stats shadow stats-vertical md:stats-horizontal">
               <div className="stat">
@@ -820,14 +816,14 @@ export default function Dashboard() {
                 <div className="stat-value text-success">{completedActivities}</div>
                 <div className="stat-desc">{overallProgress}% do total</div>
               </div>
-              
+
               <div className="stat">
                 <div className="stat-figure text-warning"><FaClipboardCheck className="text-3xl" /></div>
                 <div className="stat-title">Pendentes</div>
                 <div className="stat-value text-warning">{pendingActivities}</div>
                 <div className="stat-desc">Continue estudando</div>
               </div>
-              
+
               <div className="stat">
                 <div className="stat-figure text-info"><FaGraduationCap className="text-3xl" /></div>
                 <div className="stat-title">Total</div>
@@ -840,15 +836,108 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
+
+// --- Componente principal ---
+
+export default function Dashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeReunionTab, setActiveReunionTab] = useState('upcoming');
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('/api/dashboard');
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push('/');
+            return;
+          }
+          throw new Error(`Erro ao carregar dados: ${response.statusText}`);
+        }
+
+        const dashboardData = await response.json();
+        setData(dashboardData);
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [router]);
+
+  if (loading || error) {
+    return <LoadingOrError loading={loading} error={error} />;
+  }
+
+  if (!data) return null;
+
+  const nextReunion = data.upcomingReunions?.[0];
+  const { completedActivities, pendingActivities, totalActivities, overallProgress } = data.stats;
+
+  const performance = (() => {
+    if (overallProgress >= 80) return { level: 'Excelente', color: 'text-success', desc: 'Continue assim!' };
+    if (overallProgress >= 60) return { level: 'Bom', color: 'text-accent', desc: 'Voce esta no caminho certo!' };
+    if (overallProgress >= 40) return { level: 'Regular', color: 'text-warning', desc: 'Ha espaco para melhorar.' };
+    if (overallProgress > 0)   return { level: 'Iniciante', color: 'text-info', desc: 'Bom comeco, avance!' };
+    return { level: 'Iniciante', color: 'text-info', desc: 'Comece sua primeira atividade.' };
+  })();
+
+  const filteredCourses = data.courses.filter(course => {
+    if (activeCategory === 'all') return true;
+    if (activeCategory === 'in-progress') return course.progress.progressPercentage > 0 && course.progress.progressPercentage < 100;
+    if (activeCategory === 'completed') return course.progress.progressPercentage === 100;
+    return activeCategory === 'not-started' && course.progress.progressPercentage === 0;
+  });
 
   return (
     <div className="flex flex-col w-full">
-      <UserHeader />
-      <NavigationTabs />
-      
-      {activeTab === 'overview' && <OverviewSection />}
-      {activeTab === 'courses' && <CoursesSection />}
-      {activeTab === 'activities' && <ActivitiesSection />}
+      <UserHeader
+        data={data}
+        overallProgress={overallProgress}
+        completedActivities={completedActivities}
+        totalActivities={totalActivities}
+        performance={performance}
+      />
+      <NavigationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {activeTab === 'overview' && (
+        <OverviewSection
+          data={data}
+          nextReunion={nextReunion}
+          overallProgress={overallProgress}
+          completedActivities={completedActivities}
+          pendingActivities={pendingActivities}
+          totalActivities={totalActivities}
+          activeReunionTab={activeReunionTab}
+          setActiveReunionTab={setActiveReunionTab}
+          router={router}
+        />
+      )}
+      {activeTab === 'courses' && (
+        <CoursesSection
+          data={data}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          filteredCourses={filteredCourses}
+        />
+      )}
+      {activeTab === 'activities' && (
+        <ActivitiesSection
+          data={data}
+          overallProgress={overallProgress}
+          completedActivities={completedActivities}
+          pendingActivities={pendingActivities}
+          totalActivities={totalActivities}
+        />
+      )}
     </div>
   );
 }
