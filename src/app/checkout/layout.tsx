@@ -1,17 +1,10 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import pool from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
-import ClientDashboardLayout from "./ClientDashboardLayout";
 
-export const metadata: Metadata = {
-  title: "Dashboard • Psicologia Católica Tomista",
-  description: "Onde você pode gerenciar cursos, usuários, configurações e acompanhar o desempenho da plataforma de aprendizado.",
-};
-
-export default async function DashboardLayout({
+export default async function CheckoutLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   if (process.env.NEXT_PUBLIC_ENABLE_PAYMENTS === "true") {
@@ -26,22 +19,25 @@ export default async function DashboardLayout({
         const { payload } = await jwtVerify(token, SECRET_KEY);
         const { userId, role } = payload as { userId: number; role: string };
 
-        if (role === "student") {
+        if (role === "mentor") {
+          enrollmentRedirect = "/admin";
+        } else if (role === "student") {
           const [rows] = await pool.query<RowDataPacket[]>(
             "SELECT 1 FROM ClassUsers WHERE user_id = ? LIMIT 1",
             [userId]
           );
-          if (rows.length === 0) {
-            enrollmentRedirect = "/checkout";
+          // Já matriculado — não precisa de checkout
+          if (rows.length > 0) {
+            enrollmentRedirect = "/dashboard";
           }
         }
       }
     } catch {
-      // Erro inesperado na verificação — proxy já validou o JWT, então ignora
+      // Erro inesperado — deixa passar, o proxy já validou o JWT
     }
 
     if (enrollmentRedirect) redirect(enrollmentRedirect);
   }
 
-  return <ClientDashboardLayout>{children}</ClientDashboardLayout>;
+  return <>{children}</>;
 }

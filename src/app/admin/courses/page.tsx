@@ -8,11 +8,15 @@ import { FaPencil } from "react-icons/fa6";
 import LoadingOrError from "@/components/LoadingOrError";
 import Link from "next/link";
 
+const PAYMENTS_ENABLED = process.env.NEXT_PUBLIC_ENABLE_PAYMENTS === "true";
+
 interface Course {
     id: number;
     name: string;
     description: string | null;
     class_count: number;
+    price?: number;
+    is_active?: number;
 }
 
 interface SearchFilter {
@@ -45,6 +49,8 @@ export default function CoursesPage() {
     const [editingCourse, setEditingCourse] = useState<Course | null>(null);
     const [formName, setFormName] = useState("");
     const [formDescription, setFormDescription] = useState("");
+    const [formPrice, setFormPrice] = useState("0.00");
+    const [formIsActive, setFormIsActive] = useState(true);
     const [formSaving, setFormSaving] = useState(false);
 
     const fetchCourses = async () => {
@@ -82,6 +88,8 @@ export default function CoursesPage() {
         setEditingCourse(null);
         setFormName("");
         setFormDescription("");
+        setFormPrice("0.00");
+        setFormIsActive(true);
         setModalMode("create");
     };
 
@@ -89,6 +97,8 @@ export default function CoursesPage() {
         setEditingCourse(course);
         setFormName(course.name);
         setFormDescription(course.description || "");
+        setFormPrice(course.price !== undefined ? String(course.price) : "0.00");
+        setFormIsActive(course.is_active !== 0);
         setModalMode("edit");
     };
 
@@ -101,7 +111,14 @@ export default function CoursesPage() {
         }
         setFormSaving(true);
         try {
-            const body = { name: formName.trim(), description: formDescription.trim() || null };
+            const body: Record<string, unknown> = {
+                name: formName.trim(),
+                description: formDescription.trim() || null,
+                ...(PAYMENTS_ENABLED && {
+                    price: parseFloat(formPrice) || 0,
+                    is_active: formIsActive ? 1 : 0,
+                }),
+            };
             const res = modalMode === "create"
                 ? await fetch("/api/admin/courses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
                 : await fetch(`/api/admin/courses/${editingCourse!.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -258,6 +275,35 @@ export default function CoursesPage() {
                                     rows={3}
                                 />
                             </div>
+                            {PAYMENTS_ENABLED && (
+                                <>
+                                    <div>
+                                        <label className="label"><span className="label-text">Preço (R$)</span></label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            className="input input-bordered w-full"
+                                            value={formPrice}
+                                            onChange={e => setFormPrice(e.target.value)}
+                                            placeholder="0.00"
+                                        />
+                                        <p className="text-xs text-base-content/50 mt-1">Use 0.00 para curso gratuito.</p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            className="toggle toggle-primary"
+                                            checked={formIsActive}
+                                            onChange={e => setFormIsActive(e.target.checked)}
+                                            id="form_is_active"
+                                        />
+                                        <label htmlFor="form_is_active" className="label-text cursor-pointer">
+                                            Curso ativo (visível no checkout)
+                                        </label>
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div className="modal-action">
                             <button className="btn" onClick={closeModal}>Cancelar</button>

@@ -20,28 +20,28 @@ interface SearchFilter {
 
 export async function POST(request: NextRequest) {
     const body = await request.json();
-    const { name, description } = body;
+    const { name, description, price, is_active } = body;
 
     if (!name) {
         return NextResponse.json(
-            { message: "O nome do curso é obrigatório." }, 
+            { message: "O nome do curso é obrigatório." },
             { status: 400 }
         );
     }
 
     try {
         const [result] = await pool.query<import("mysql2").ResultSetHeader>(
-            "INSERT INTO Courses (name, description) VALUES (?, ?)",
-            [name, description || null]
+            "INSERT INTO Courses (name, description, price, is_active) VALUES (?, ?, ?, ?)",
+            [name, description || null, price ?? 0, is_active ?? 1]
         );
 
         return NextResponse.json(
-            { message: "Curso criado com sucesso!", id: result.insertId }, 
+            { message: "Curso criado com sucesso!", id: result.insertId },
             { status: 201 }
         );
     } catch (error) {
         return NextResponse.json(
-            { message: "Erro interno ao criar o curso." }, 
+            { message: "Erro interno ao criar o curso." },
             { status: 500 }
         );
     }
@@ -118,10 +118,13 @@ export async function GET(request: NextRequest) {
 
         const [rows] = await pool.query(
             `
-            SELECT 
-                id, 
-                name, 
-                description 
+            SELECT
+                id,
+                name,
+                description,
+                COALESCE(price, 0.00) AS price,
+                COALESCE(is_active, 1) AS is_active,
+                (SELECT COUNT(*) FROM Classes WHERE Classes.course_id = Courses.id) AS class_count
             FROM Courses
             WHERE ${whereClause}
             ORDER BY ${sanitizedSortColumn} ${sanitizedSortDirection}

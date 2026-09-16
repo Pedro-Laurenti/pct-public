@@ -7,6 +7,8 @@ if (!process.env.JWT_SECRET) {
 }
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
+const PAYMENTS_ENABLED = process.env.NEXT_PUBLIC_ENABLE_PAYMENTS === "true";
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("auth_token")?.value;
@@ -21,6 +23,11 @@ export async function proxy(req: NextRequest) {
     isApiRoute
       ? NextResponse.json({ message: "Forbidden" }, { status: 403 })
       : NextResponse.redirect(new URL("/", req.url));
+
+  // /checkout e /pagamento/* só existem quando pagamentos estão habilitados
+  if ((pathname.startsWith("/checkout") || pathname.startsWith("/pagamento")) && !PAYMENTS_ENABLED) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
 
   if (!token) return unauthorized();
 
@@ -44,6 +51,9 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
+    "/checkout/:path*",
+    "/checkout",
+    "/pagamento/:path*",
     "/api/dashboard/:path*",
     "/api/admin/:path*",
     "/api/lessons/:path*",
@@ -51,5 +61,6 @@ export const config = {
     "/api/reunions/:path*",
     "/api/activities",
     "/api/notifications",
+    "/api/checkout/:path*",
   ],
 };

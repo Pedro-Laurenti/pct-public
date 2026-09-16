@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     try {
         // Buscar dados do curso
         const [rows] = await pool.query<RowDataPacket[]>(
-            "SELECT id, name, description FROM Courses WHERE id = ?",
+            "SELECT id, name, description, COALESCE(price, 0.00) AS price, COALESCE(is_active, 1) AS is_active FROM Courses WHERE id = ?",
             [id]
         );
         const courseRows = rows as CourseRow[];
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest) {
     const pathSegments = url.pathname.split('/');
     const id = pathSegments[pathSegments.indexOf('courses') + 1];
     const body = await request.json();
-    const { name, description } = body;
+    const { name, description, price, is_active } = body;
 
     if (!name) {
         return NextResponse.json({ message: "O nome do curso é obrigatório." }, { status: 400 });
@@ -60,8 +60,8 @@ export async function PUT(request: NextRequest) {
     try {
         // Atualizar dados do curso
         const [result] = await pool.query(
-            "UPDATE Courses SET name = ?, description = ? WHERE id = ?",
-            [name, description, id]
+            "UPDATE Courses SET name = ?, description = ?, price = ?, is_active = ? WHERE id = ?",
+            [name, description, price ?? 0, is_active ?? 1, id]
         );
 
         if ((result as any).affectedRows === 0) {

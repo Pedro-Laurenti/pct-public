@@ -5,8 +5,10 @@ import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   FaHome, FaUser, FaBook, FaChalkboardTeacher, FaCalendarAlt,
-  FaBars, FaTimes, FaChevronLeft, FaChevronRight,
+  FaBars, FaTimes, FaChevronLeft, FaChevronRight, FaTag,
 } from "react-icons/fa";
+
+const PAYMENTS_ENABLED = process.env.NEXT_PUBLIC_ENABLE_PAYMENTS === "true";
 import { useRouter, usePathname } from "next/navigation";
 import { BiLogOut } from "react-icons/bi";
 
@@ -36,10 +38,11 @@ export default function ClientAdminLayout({
   useEffect(() => { setIsSidebarOpen(false); }, [pathname]);
 
   const menuItems = [
-    { icon: <FaHome />,              label: "Inicio",  link: "/admin",          exact: true  },
-    { icon: <FaCalendarAlt />,       label: "Agenda",  link: "/admin/reunions", exact: false },
-    { icon: <FaChalkboardTeacher />, label: "Turmas",  link: "/admin/classes",  exact: false },
-    { icon: <FaBook />,              label: "Cursos",  link: "/admin/courses",  exact: false },
+    { icon: <FaHome />,              label: "Inicio",     link: "/admin",             exact: true  },
+    { icon: <FaCalendarAlt />,       label: "Agenda",     link: "/admin/reunions",    exact: false },
+    { icon: <FaChalkboardTeacher />, label: "Turmas",     link: "/admin/classes",     exact: false },
+    { icon: <FaBook />,              label: "Cursos",     link: "/admin/courses",     exact: false },
+    ...(PAYMENTS_ENABLED ? [{ icon: <FaTag />, label: "Promoções", link: "/admin/promotions", exact: false }] : []),
   ];
 
   const isActive = (link: string, exact: boolean) =>
@@ -50,8 +53,8 @@ export default function ClientAdminLayout({
       {sessionExpired && (
         <dialog className="modal modal-open">
           <div className="modal-box">
-            <h3 className="font-bold text-lg">Sessao Expirada</h3>
-            <p className="py-4">Sua sessao expirou. Por favor, faca login novamente para continuar.</p>
+            <h3 className="font-bold text-lg">Sessão Expirada</h3>
+            <p className="py-4">Sua sessão expirou. Por favor, faça login novamente para continuar.</p>
             <div className="modal-action">
               <button className="btn btn-primary" onClick={() => router.replace("/login")}>
                 Ir para o Login
