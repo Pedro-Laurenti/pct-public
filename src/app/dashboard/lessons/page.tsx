@@ -1,6 +1,5 @@
 "use client";
-export const dynamic = "force-dynamic";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
@@ -31,7 +30,7 @@ interface Lesson {
   lesson_description: string;
 }
 
-export default function LessonsPage() {
+function LessonsContent() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -191,5 +190,13 @@ export default function LessonsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LessonsPage() {
+  return (
+    <Suspense fallback={<LoadingOrError loading={true} error={null} />}>
+      <LessonsContent />
+    </Suspense>
   );
 }

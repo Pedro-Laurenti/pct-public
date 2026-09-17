@@ -1,11 +1,10 @@
 "use client";
-export const dynamic = "force-dynamic";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaCheckCircle, FaSpinner } from "react-icons/fa";
 
-export default function PagamentoSucesso() {
+function PagamentoSucessoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "approved" | "pending">("loading");
@@ -79,5 +78,17 @@ export default function PagamentoSucesso() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PagamentoSucesso() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-base-100">
+        <FaSpinner className="text-4xl text-primary animate-spin" />
+      </div>
+    }>
+      <PagamentoSucessoContent />
+    </Suspense>
   );
 }
