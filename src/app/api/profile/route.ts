@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     // Buscar dados do usuário
     const [users]: any = await pool.query(
-      `SELECT id, name, email, phone_number FROM Users WHERE id = ?`,
+      `SELECT id, name, email, phone_number, auth_provider FROM Users WHERE id = ?`,
       [userId]
     );
 
@@ -76,7 +76,7 @@ export async function PUT(request: NextRequest) {
 
     // Buscar dados atualizados
     const [users]: any = await pool.query(
-      `SELECT id, name, email, phone_number FROM Users WHERE id = ?`,
+      `SELECT id, name, email, phone_number, auth_provider FROM Users WHERE id = ?`,
       [userId]
     );
 

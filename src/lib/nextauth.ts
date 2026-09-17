@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
 
         if (rows.length === 0) {
           const [result]: any = await pool.query(
-            "INSERT INTO Users (name, email, password_hash, role) VALUES (?, ?, '', 'student')",
+            "INSERT INTO Users (name, email, password_hash, role, auth_provider, onboarding_complete) VALUES (?, ?, '', 'student', 'google', 0)",
             [user.name ?? user.email, user.email.toLowerCase()]
           );
           userId = result.insertId;

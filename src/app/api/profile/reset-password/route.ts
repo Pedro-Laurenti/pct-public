@@ -33,15 +33,23 @@ export async function POST(request: NextRequest) {
 
     // Buscar dados do usuário
     const [users]: any = await pool.query(
-      `SELECT id, name, email FROM Users WHERE id = ?`,
+      `SELECT id, name, email, auth_provider FROM Users WHERE id = ?`,
       [userId]
     );
 
     if (users.length === 0) {
       return NextResponse.json({ message: "Usuário não encontrado" }, { status: 404 });
     }
-    
+
     const user = users[0];
+
+    // Usuários Google não têm senha local
+    if (user.auth_provider === 'google') {
+      return NextResponse.json(
+        { message: "Sua conta usa login com Google. Não é possível redefinir uma senha local." },
+        { status: 400 }
+      );
+    }
     
     // Gerar token aleatório de 6 dígitos
     const resetToken = crypto.randomInt(100000, 999999).toString();
