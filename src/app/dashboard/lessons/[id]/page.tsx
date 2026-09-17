@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactElement } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
@@ -24,7 +24,7 @@ interface LessonContent {
   completed: boolean;
 }
 
-const TYPE_META: Record<string, { icon: JSX.Element; label: string }> = {
+const TYPE_META: Record<string, { icon: ReactElement; label: string }> = {
   video:    { icon: <FaVideo className="text-info" />,      label: "Vídeo"      },
   text:     { icon: <FaFileAlt className="text-success" />, label: "Texto"      },
   activity: { icon: <FaTasks className="text-warning" />,   label: "Atividade"  },
