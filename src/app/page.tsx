@@ -22,12 +22,13 @@ interface Course {
   name: string;
   description: string | null;
   price: number;
+  cover_image: string | null;
 }
 
 async function getActiveCourses(): Promise<Course[]> {
   try {
     const [rows] = await pool.execute(
-      "SELECT id, name, description, price FROM Courses WHERE is_active = 1 ORDER BY id"
+      "SELECT id, name, description, price, cover_image FROM Courses WHERE is_active = 1 ORDER BY id"
     );
     return (rows as Course[]).map(r => ({ ...r, price: parseFloat(String(r.price)) }));
   } catch {
@@ -269,34 +270,44 @@ export default async function LandingPage() {
                   key={course.id}
                   className="carousel-item w-72 md:w-80 shrink-0"
                 >
-                  <div
-                    className="w-full border border-base-content/10 bg-base-200 p-8 flex flex-col hover:border-primary/30 transition-colors duration-300 group"
-                  >
-                    <p className="font-display text-6xl text-primary/10 leading-none mb-6 select-none group-hover:text-primary/18 transition-colors">
-                      {String(i + 1).padStart(2, "0")}
-                    </p>
-                    <h3 className="font-serif text-lg text-base-content mb-3 leading-snug">
-                      {course.name}
-                    </h3>
-                    {course.description && (
-                      <p className="text-sm text-base-content/45 leading-relaxed mb-6 line-clamp-3">
-                        {course.description}
-                      </p>
+                  <div className="w-full border border-base-content/10 bg-base-200 flex flex-col hover:border-primary/30 transition-colors duration-300 group">
+                    {course.cover_image && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={course.cover_image}
+                        alt={course.name}
+                        className="w-full aspect-4/3 object-cover shrink-0"
+                      />
                     )}
-                    <div className="mt-auto flex items-center justify-between">
-                      <span className="text-base-content/40 text-sm">
-                        {course.price === 0 ? (
-                          <span className="text-success font-semibold text-xs tracking-widest uppercase">Gratuito</span>
-                        ) : (
-                          <span className="font-semibold text-base-content">R$ {course.price.toFixed(2)}</span>
-                        )}
-                      </span>
-                      <Link
-                        href="/login"
-                        className="btn btn-primary btn-xs tracking-wider"
-                      >
-                        Acessar
-                      </Link>
+                    <div className="p-8 flex flex-col flex-1">
+                      {!course.cover_image && (
+                        <p className="font-display text-6xl text-primary/10 leading-none mb-6 select-none group-hover:text-primary/18 transition-colors">
+                          {String(i + 1).padStart(2, "0")}
+                        </p>
+                      )}
+                      <h3 className="font-serif text-lg text-base-content mb-3 leading-snug">
+                        {course.name}
+                      </h3>
+                      {course.description && (
+                        <p className="text-sm text-base-content/45 leading-relaxed mb-6 line-clamp-3">
+                          {course.description}
+                        </p>
+                      )}
+                      <div className="mt-auto flex items-center justify-between">
+                        <span className="text-base-content/40 text-sm">
+                          {course.price === 0 ? (
+                            <span className="text-success font-semibold text-xs tracking-widest uppercase">Gratuito</span>
+                          ) : (
+                            <span className="font-semibold text-base-content">R$ {course.price.toFixed(2)}</span>
+                          )}
+                        </span>
+                        <Link
+                          href="/login"
+                          className="btn btn-primary btn-xs tracking-wider"
+                        >
+                          Acessar
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

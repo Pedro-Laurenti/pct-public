@@ -17,6 +17,7 @@ interface Course {
     class_count: number;
     price?: number;
     is_active?: number;
+    cover_image?: string | null;
 }
 
 interface SearchFilter {
@@ -51,6 +52,7 @@ export default function CoursesPage() {
     const [formDescription, setFormDescription] = useState("");
     const [formPrice, setFormPrice] = useState("0.00");
     const [formIsActive, setFormIsActive] = useState(true);
+    const [formCoverImage, setFormCoverImage] = useState("");
     const [formSaving, setFormSaving] = useState(false);
 
     const fetchCourses = async () => {
@@ -90,6 +92,7 @@ export default function CoursesPage() {
         setFormDescription("");
         setFormPrice("0.00");
         setFormIsActive(true);
+        setFormCoverImage("");
         setModalMode("create");
     };
 
@@ -99,6 +102,7 @@ export default function CoursesPage() {
         setFormDescription(course.description || "");
         setFormPrice(course.price !== undefined ? String(course.price) : "0.00");
         setFormIsActive(course.is_active !== 0);
+        setFormCoverImage(course.cover_image || "");
         setModalMode("edit");
     };
 
@@ -114,6 +118,7 @@ export default function CoursesPage() {
             const body: Record<string, unknown> = {
                 name: formName.trim(),
                 description: formDescription.trim() || null,
+                cover_image: formCoverImage.trim() || null,
                 ...(PAYMENTS_ENABLED && {
                     price: parseFloat(formPrice) || 0,
                     is_active: formIsActive ? 1 : 0,
@@ -274,6 +279,23 @@ export default function CoursesPage() {
                                     placeholder="Descrição do curso (opcional)"
                                     rows={3}
                                 />
+                            </div>
+                            <div>
+                                <label className="label"><span className="label-text">Imagem de capa (URL)</span></label>
+                                <input
+                                    type="url"
+                                    className="input input-bordered w-full"
+                                    value={formCoverImage}
+                                    onChange={e => setFormCoverImage(e.target.value)}
+                                    placeholder="https://exemplo.com/imagem.jpg (opcional)"
+                                />
+                                {formCoverImage && (
+                                    <div className="mt-2 relative w-full aspect-video overflow-hidden border border-base-content/8">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={formCoverImage} alt="Preview" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
+                                    </div>
+                                )}
+                                <p className="text-xs text-base-content/40 mt-1">Deixe vazio para usar o design padrão com numeração.</p>
                             </div>
                             {PAYMENTS_ENABLED && (
                                 <>

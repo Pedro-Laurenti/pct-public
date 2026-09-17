@@ -12,7 +12,7 @@ export async function GET() {
   if (isUnauthorized(auth)) return auth;
 
   const [courses] = await pool.query<RowDataPacket[]>(
-    "SELECT id, name, description, price FROM Courses WHERE is_active = 1 ORDER BY name"
+    "SELECT id, name, description, price, cover_image FROM Courses WHERE is_active = 1 ORDER BY name"
   );
 
   return NextResponse.json({ courses });

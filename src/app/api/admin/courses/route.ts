@@ -20,7 +20,7 @@ interface SearchFilter {
 
 export async function POST(request: NextRequest) {
     const body = await request.json();
-    const { name, description, price, is_active } = body;
+    const { name, description, price, is_active, cover_image } = body;
 
     if (!name) {
         return NextResponse.json(
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
 
     try {
         const [result] = await pool.query<import("mysql2").ResultSetHeader>(
-            "INSERT INTO Courses (name, description, price, is_active) VALUES (?, ?, ?, ?)",
-            [name, description || null, price ?? 0, is_active ?? 1]
+            "INSERT INTO Courses (name, description, price, is_active, cover_image) VALUES (?, ?, ?, ?, ?)",
+            [name, description || null, price ?? 0, is_active ?? 1, cover_image || null]
         );
 
         return NextResponse.json(
@@ -122,6 +122,7 @@ export async function GET(request: NextRequest) {
                 id,
                 name,
                 description,
+                cover_image,
                 COALESCE(price, 0.00) AS price,
                 COALESCE(is_active, 1) AS is_active,
                 (SELECT COUNT(*) FROM Classes WHERE Classes.course_id = Courses.id) AS class_count
