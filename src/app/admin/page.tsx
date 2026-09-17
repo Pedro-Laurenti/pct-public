@@ -241,10 +241,10 @@ export default function Dashboard() {
 
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <div className="card bg-primary text-primary-content shadow-md">
+        <div className="card bg-primary text-primary-content border border-base-content/8">
           <div className="card-body p-4">
             <div className="flex justify-between items-center">
-              <h2 className="card-title text-lg">Usuários</h2>
+              <h2 className="card-title font-serif text-lg">Usuários</h2>
               <FaUser className="text-2xl opacity-80" />
             </div>
             <p className="text-3xl font-bold">{stats?.totalUsers || 0}</p>
@@ -254,10 +254,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card bg-secondary text-secondary-content shadow-md">
+        <div className="card bg-secondary text-secondary-content border border-base-content/8">
           <div className="card-body p-4">
             <div className="flex justify-between items-center">
-              <h2 className="card-title text-lg">Classes</h2>
+              <h2 className="card-title font-serif text-lg">Classes</h2>
               <FaUserGraduate className="text-2xl opacity-80" />
             </div>
             <p className="text-3xl font-bold">{stats?.totalClasses || 0}</p>
@@ -267,10 +267,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card bg-accent text-accent-content shadow-md">
+        <div className="card bg-accent text-accent-content border border-base-content/8">
           <div className="card-body p-4">
             <div className="flex justify-between items-center">
-              <h2 className="card-title text-lg">Cursos</h2>
+              <h2 className="card-title font-serif text-lg">Cursos</h2>
               <FaBook className="text-2xl opacity-80" />
             </div>
             <p className="text-3xl font-bold">{stats?.totalCourses || 0}</p>
@@ -280,10 +280,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card bg-info text-info-content shadow-md">
+        <div className="card bg-info text-info-content border border-base-content/8">
           <div className="card-body p-4">
             <div className="flex justify-between items-center">
-              <h2 className="card-title text-lg">Aulas</h2>
+              <h2 className="card-title font-serif text-lg">Aulas</h2>
               <BiChalkboard className="text-2xl opacity-80" />
             </div>
             <p className="text-3xl font-bold">{stats?.totalLessons || 0}</p>
@@ -293,10 +293,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card bg-neutral text-neutral-content shadow-md">
+        <div className="card bg-neutral text-neutral-content border border-base-content/8">
           <div className="card-body p-4">
             <div className="flex justify-between items-center">
-              <h2 className="card-title text-lg">Conteúdos</h2>
+              <h2 className="card-title font-serif text-lg">Conteúdos</h2>
               <FaVideo className="text-2xl opacity-80" />
             </div>
             <p className="text-3xl font-bold">{stats?.totalContents || 0}</p>
@@ -313,32 +313,32 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Tipos de Conteúdo */}
           {detailedStats?.contentTypeStats && (
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-content/8">
               <div className="card-body p-4">
-                <h2 className="card-title flex items-center mb-4">
+                <h2 className="card-title font-serif flex items-center mb-4">
                   <FaChartLine className="mr-2" /> Distribuição de Conteúdo
                 </h2>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-primary/10 rounded-lg p-3 text-center">
+                  <div className="bg-primary/10 p-3 text-center">
                     <div className="text-primary text-3xl mb-1"><FaVideo /></div>
                     <div className="text-2xl font-bold">{detailedStats.contentTypeStats.video}</div>
                     <div className="text-sm text-base-content/70">Vídeos</div>
                   </div>
                   
-                  <div className="bg-secondary/10 rounded-lg p-3 text-center">
+                  <div className="bg-secondary/10 p-3 text-center">
                     <div className="text-secondary text-3xl mb-1"><HiOutlineDocumentText /></div>
                     <div className="text-2xl font-bold">{detailedStats.contentTypeStats.text}</div>
                     <div className="text-sm text-base-content/70">Textos</div>
                   </div>
                   
-                  <div className="bg-accent/10 rounded-lg p-3 text-center">
+                  <div className="bg-accent/10 p-3 text-center">
                     <div className="text-accent text-3xl mb-1"><BiTask /></div>
                     <div className="text-2xl font-bold">{detailedStats.contentTypeStats.activity}</div>
                     <div className="text-sm text-base-content/70">Atividades</div>
                   </div>
                   
-                  <div className="bg-info/10 rounded-lg p-3 text-center">
+                  <div className="bg-info/10 p-3 text-center">
                     <div className="text-info text-3xl mb-1"><FaCalendarAlt /></div>
                     <div className="text-2xl font-bold">{detailedStats.contentTypeStats.reunion}</div>
                     <div className="text-sm text-base-content/70">Reuniões</div>
@@ -349,10 +349,10 @@ export default function Dashboard() {
           )}
 
           {/* Mini calendário de reuniões */}
-          <div className="card bg-base-100 shadow-lg">
+          <div className="card bg-base-100 border border-base-content/8">
             <div className="card-body p-4">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title flex items-center">
+                <h2 className="card-title font-serif flex items-center">
                   <FaCalendarAlt className="mr-2" /> Próximas Reuniões
                 </h2>
                 <Link href="/admin/reunions" className="btn btn-sm btn-outline">
@@ -361,7 +361,7 @@ export default function Dashboard() {
               </div>
               
               {upcomingReunions.length === 0 ? (
-                <div className="text-center py-8 bg-base-200 rounded-lg">
+                <div className="text-center py-8 bg-base-200">
                   <FaCalendarAlt className="mx-auto text-3xl text-base-content/30" />
                   <p className="mt-2 text-base-content/50">Não há reuniões agendadas para os próximos dias</p>
                 </div>
@@ -370,7 +370,7 @@ export default function Dashboard() {
                   {upcomingReunions.map(reunion => (
                     <div 
                       key={reunion.id} 
-                      className="p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
+                      className="p-3 bg-base-200 hover:bg-base-300 transition-colors"
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -412,10 +412,10 @@ export default function Dashboard() {
           
           {/* Aulas Recentes */}
           {detailedStats?.upcomingLessons && detailedStats.upcomingLessons.length > 0 && (
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-content/8">
               <div className="card-body p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="card-title flex items-center">
+                  <h2 className="card-title font-serif flex items-center">
                     <FaBookReader className="mr-2" /> Aulas Recentes
                   </h2>
                   <Link href="/admin/lessons" className="btn btn-sm btn-outline">
@@ -427,10 +427,10 @@ export default function Dashboard() {
                   <table className="table table-sm w-full">
                     <thead>
                       <tr>
-                        <th>Aula</th>
-                        <th>Curso</th>
-                        <th>Alunos</th>
-                        <th>Ações</th>
+                        <th className="text-base-content/50 text-xs uppercase tracking-wide">Aula</th>
+                        <th className="text-base-content/50 text-xs uppercase tracking-wide">Curso</th>
+                        <th className="text-base-content/50 text-xs uppercase tracking-wide">Alunos</th>
+                        <th className="text-base-content/50 text-xs uppercase tracking-wide">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -461,9 +461,9 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Cursos Populares */}
           {detailedStats?.popularCourses && detailedStats.popularCourses.length > 0 && (
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-content/8">
               <div className="card-body p-4">
-                <h2 className="card-title flex items-center mb-4">
+                <h2 className="card-title font-serif flex items-center mb-4">
                   <FaGraduationCap className="mr-2" /> Cursos Populares
                 </h2>
                 
@@ -495,9 +495,9 @@ export default function Dashboard() {
           
           {/* Últimos Usuários */}
           {detailedStats?.recentUsers && detailedStats.recentUsers.length > 0 && (
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-content/8">
               <div className="card-body p-4">
-                <h2 className="card-title flex items-center mb-4">
+                <h2 className="card-title font-serif flex items-center mb-4">
                   <FaUser className="mr-2" /> Usuários Recentes
                 </h2>
                 
@@ -544,9 +544,9 @@ export default function Dashboard() {
           
           {/* Progresso de Classes */}
           {progressStats?.classProgress && progressStats.classProgress.length > 0 && (
-            <div className="card bg-base-100 shadow-lg">
+            <div className="card bg-base-100 border border-base-content/8">
               <div className="card-body p-4">
-                <h2 className="card-title flex items-center mb-4">
+                <h2 className="card-title font-serif flex items-center mb-4">
                   <FaChalkboardTeacher className="mr-2" /> Progresso por Classes
                 </h2>
                 

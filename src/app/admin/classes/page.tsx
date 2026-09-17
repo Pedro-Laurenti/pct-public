@@ -169,7 +169,7 @@ export default function ClassesPage() {
             {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Turmas</h1>
+                <h1 className="font-display text-3xl">Turmas</h1>
                 <div className="flex gap-2">
                     <button className="btn btn-outline btn-sm" onClick={() => (document.getElementById("filter_modal") as HTMLDialogElement)?.showModal()}>
                         <FaFilter /> Filtrar
@@ -194,14 +194,14 @@ export default function ClassesPage() {
                 </div>
             )}
 
-            <table className="table table-zebra w-full">
+            <table className="table w-full">
                 <thead>
                     <tr>
-                        <th className="cursor-pointer select-none" onClick={() => handleSort("id")}>ID{sortIndicator("id")}</th>
-                        <th className="cursor-pointer select-none" onClick={() => handleSort("name")}>Nome{sortIndicator("name")}</th>
-                        <th className="cursor-pointer select-none" onClick={() => handleSort("course_name")}>Curso{sortIndicator("course_name")}</th>
-                        <th className="cursor-pointer select-none" onClick={() => handleSort("student_count")}>Alunos{sortIndicator("student_count")}</th>
-                        <th>Ações</th>
+                        <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("id")}>ID{sortIndicator("id")}</th>
+                        <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("name")}>Nome{sortIndicator("name")}</th>
+                        <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("course_name")}>Curso{sortIndicator("course_name")}</th>
+                        <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("student_count")}>Alunos{sortIndicator("student_count")}</th>
+                        <th className="text-base-content/50 text-xs uppercase tracking-wide">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -218,7 +218,7 @@ export default function ClassesPage() {
                             <td>
                                 <div className={`dropdown ${index >= classes.length - 2 ? "dropdown-top dropdown-end" : "dropdown-left"}`}>
                                     <label tabIndex={0} className="btn btn-sm btn-square btn-ghost"><SlOptionsVertical /></label>
-                                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44 z-10">
+                                    <ul tabIndex={0} className="dropdown-content menu p-2 bg-base-100 border border-base-content/8 rounded-box w-44 z-10">
                                         <li>
                                             <Link href={`/admin/classes/${cls.id}/users`} className="flex items-center gap-2">
                                                 <FaUsers /> Ver Alunos
@@ -258,7 +258,7 @@ export default function ClassesPage() {
             {modalMode && (
                 <dialog className="modal modal-open" onClick={e => e.target === e.currentTarget && closeModal()}>
                     <div className="modal-box">
-                        <h3 className="font-bold text-lg mb-4">{modalMode === "create" ? "Nova Turma" : "Editar Turma"}</h3>
+                        <h3 className="font-serif font-bold text-lg mb-4">{modalMode === "create" ? "Nova Turma" : "Editar Turma"}</h3>
                         <div className="space-y-4">
                             <div>
                                 <label className="label"><span className="label-text">Nome *</span></label>
@@ -297,7 +297,7 @@ export default function ClassesPage() {
             {/* Modal filtro */}
             <dialog id="filter_modal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
-                    <h3 className="text-lg font-bold mb-4">Adicionar Filtro</h3>
+                    <h3 className="font-serif text-lg font-bold mb-4">Adicionar Filtro</h3>
                     <div className="space-y-3">
                         <div>
                             <label className="label"><span className="label-text">Coluna</span></label>
@@ -332,7 +332,7 @@ export default function ClassesPage() {
             {classToDelete && (
                 <dialog className="modal modal-open" onClick={e => e.target === e.currentTarget && setClassToDelete(null)}>
                     <div className="modal-box">
-                        <h3 className="font-bold text-lg">Confirmar Exclusão</h3>
+                        <h3 className="font-serif font-bold text-lg">Confirmar Exclusão</h3>
                         <p className="py-4">Tem certeza de que deseja excluir a turma <strong>{classToDelete.name}</strong>?</p>
                         <div className="modal-action">
                             <button className="btn" onClick={() => setClassToDelete(null)}>Cancelar</button>

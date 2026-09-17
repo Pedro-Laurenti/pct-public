@@ -268,14 +268,14 @@ export default function ReunionsPage() {
       <div className="flex flex-col gap-4">
         {/* Cabeçalho principal */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Calendário de Reuniões</h1>
+          <h1 className="font-display text-3xl">Calendário de Reuniões</h1>
           <Link href="/admin/contents/new" className="btn btn-primary btn-sm md:btn-md flex items-center gap-2">
             <FaPlus /> Nova Reunião
           </Link>
         </div>
 
         {/* Barra de controles do calendário */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-base-200 rounded-lg shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-base-200 border border-base-content/8">
           {/* Navegação calendário */}
           <div className="flex items-center gap-3">
             <button
@@ -287,7 +287,7 @@ export default function ReunionsPage() {
             </button>
             
             <div className="flex flex-col items-center">
-              <h2 className="text-lg font-semibold">
+              <h2 className="font-serif text-lg font-semibold">
                 {viewMode === "week" 
                   ? `${formatDate(formatDateForApi(getStartOfWeek(currentWeek)))} - ${formatDate(formatDateForApi(getEndOfWeek(currentWeek)))}`
                   : `${monthNames[currentMonth - 1]} ${currentYear}`
@@ -331,7 +331,7 @@ export default function ReunionsPage() {
       {viewMode === "week" ? (
         <>
           {/* Layout da visualização semanal */}
-          <div className="overflow-y-auto h-full relative bg-base-100 rounded-lg shadow-sm">
+          <div className="overflow-y-auto h-full relative bg-base-100 border border-base-content/8">
             {/* Agulha de tempo atual - posicionada absolutamente */}
             <div 
               ref={timelineRef}
@@ -342,7 +342,7 @@ export default function ReunionsPage() {
             >
               <div className="flex items-center w-full">
                 <div className="w-20 pr-2 text-right">
-                  <span className="text-xs font-medium text-error bg-base-100 px-1 py-0.5 rounded shadow-sm">
+                  <span className="text-xs font-medium text-error bg-base-100 px-1 py-0.5">
                     {`${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}`}
                   </span>
                 </div>
@@ -351,7 +351,7 @@ export default function ReunionsPage() {
             </div>
 
             <table className="table w-full relative border-collapse table-fixed">
-              <thead className="sticky top-0 bg-base-100 z-20 shadow-sm">
+              <thead className="sticky top-0 bg-base-100 z-20 border-b border-base-content/8">
                 <tr>
                   <th className="w-20 bg-base-200 p-3">Horário</th>
                   {getDaysInWeek().map((dayInfo, index) => (
@@ -397,8 +397,8 @@ export default function ReunionsPage() {
                               {hoursReunions.map(reunion => (
                                 <div 
                                   key={reunion.id} 
-                                  className="p-1.5 px-2 bg-primary text-primary-content rounded text-xs shadow-sm
-                                    whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer hover:shadow-md transition-all"
+                                  className="p-1.5 px-2 bg-primary text-primary-content text-xs
+                                    whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer transition-colors"
                                   title={`${reunion.reunion_title} (${formatTime(reunion.scheduled_time)} - ${reunion.duration_minutes} min)`}
                                   onClick={() => {
                                     setSelectedDate(dayInfo.dateString);
@@ -426,7 +426,7 @@ export default function ReunionsPage() {
       ) : (
         <>
           {/* Grid do calendário mensal com design melhorado */}
-          <div className="bg-base-100 rounded-lg shadow-sm overflow-hidden h-full m-0">
+          <div className="bg-base-100 border border-base-content/8 overflow-hidden h-full m-0">
             {/* Cabeçalhos dos dias da semana */}
             <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
               {weekdayNames.map((day, i) => (
@@ -472,7 +472,7 @@ export default function ReunionsPage() {
                         {dayInfo.reunions.slice(0, 3).map((r: Reunion) => (
                           <div
                             key={r.id}
-                            className="text-xs p-1 px-2 bg-primary/80 text-primary-content rounded-md
+                            className="text-xs p-1 px-2 bg-primary/80 text-primary-content
                               whitespace-nowrap overflow-hidden text-ellipsis hover:bg-primary transition-colors"
                             title={`${r.reunion_title} (${formatTime(r.scheduled_time)})`}
                             onClick={() => {
@@ -516,7 +516,7 @@ export default function ReunionsPage() {
           <form method="dialog">
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
-          <h3 className="text-xl font-semibold border-b pb-2 mb-4">
+          <h3 className="font-serif text-xl font-semibold border-b border-base-content/8 pb-2 mb-4">
             Reuniões do dia {selectedDate ? formatDate(selectedDate) : ''}
             {selectedReunions.length > 0 && (
               <span className="text-sm font-normal ml-2 text-base-content/70">
@@ -532,7 +532,7 @@ export default function ReunionsPage() {
           ) : (
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               {selectedReunions.map((reunion) => (
-                <div key={reunion.id} className="card bg-base-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div key={reunion.id} className="card bg-base-200 border border-base-content/8 overflow-hidden">
                   <div className="card-body p-4">
                     <div className="flex justify-between items-start">
                       <div>

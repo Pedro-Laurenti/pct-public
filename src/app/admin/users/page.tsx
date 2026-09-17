@@ -214,7 +214,7 @@ export default function UsersPage() {
                 />
             )}
 
-            <h1 className="text-2xl font-bold mb-4">Usuários</h1>
+            <h1 className="font-display text-3xl mb-4">Usuários</h1>
             
             {/* Header actions */}
             <div className="flex justify-between items-center mb-4">
@@ -266,7 +266,7 @@ export default function UsersPage() {
             {/* Filter modal */}
             <dialog id="filter_modal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
-                    <h3 className="text-lg font-bold mb-4">Adicionar Filtro</h3>
+                    <h3 className="font-serif text-lg font-bold mb-4">Adicionar Filtro</h3>
                     
                     <div className="form-control mb-2">
                         <label className="label">
@@ -330,17 +330,17 @@ export default function UsersPage() {
             
             {/* Users table */}
             <div className="overflow-x-auto">
-                <table className="table table-zebra w-full h-full max-h-screen">
+                <table className="table w-full h-full max-h-screen">
                     <thead>
                         <tr>
-                            <th className="cursor-pointer select-none" onClick={() => handleSort("id")}>ID {sortColumn === "id" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
-                            <th className="cursor-pointer select-none" onClick={() => handleSort("name")}>Nome {sortColumn === "name" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
-                            <th className="cursor-pointer select-none" onClick={() => handleSort("email")}>Email {sortColumn === "email" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
-                            <th className="cursor-pointer select-none" onClick={() => handleSort("role")}>Papel {sortColumn === "role" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
-                            <th>Número de Telefone</th>
-                            <th>Turmas</th>
-                            <th>Cursos</th>
-                            <th>Ações</th>
+                            <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("id")}>ID {sortColumn === "id" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
+                            <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("name")}>Nome {sortColumn === "name" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
+                            <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("email")}>Email {sortColumn === "email" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
+                            <th className="cursor-pointer select-none text-base-content/50 text-xs uppercase tracking-wide" onClick={() => handleSort("role")}>Papel {sortColumn === "role" ? (sortDirection === "asc" ? "↑" : "↓") : ""}</th>
+                            <th className="text-base-content/50 text-xs uppercase tracking-wide">Número de Telefone</th>
+                            <th className="text-base-content/50 text-xs uppercase tracking-wide">Turmas</th>
+                            <th className="text-base-content/50 text-xs uppercase tracking-wide">Cursos</th>
+                            <th className="text-base-content/50 text-xs uppercase tracking-wide">Ações</th>
                         </tr>
                     </thead>
                     <tbody className="overflow-hidden">
@@ -376,7 +376,7 @@ export default function UsersPage() {
                                         </label>
                                         <ul
                                             tabIndex={0}
-                                            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10"
+                                            className="dropdown-content menu p-2 bg-base-100 border border-base-content/8 rounded-box w-52 z-10"
                                         >
                                             <li>
                                                 <button
@@ -414,7 +414,7 @@ export default function UsersPage() {
             {/* Modal: Registrar Pagamento Manual */}
             <dialog id="payment_modal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
-                    <h3 className="font-bold text-lg mb-1">Registrar Pagamento Manual</h3>
+                    <h3 className="font-serif font-bold text-lg mb-1">Registrar Pagamento Manual</h3>
                     {userForPayment && (
                         <p className="text-sm text-base-content/60 mb-4">
                             Aluno: <span className="font-semibold text-base-content">{userForPayment.name}</span>
@@ -478,7 +478,7 @@ export default function UsersPage() {
             {userToDelete && (
                 <dialog id="delete_modal" className="modal modal-bottom sm:modal-middle" open>
                     <div className="modal-box">
-                        <h3 className="font-bold text-lg">Confirmar Exclusão</h3>
+                        <h3 className="font-serif font-bold text-lg">Confirmar Exclusão</h3>
                         <p className="py-4">
                             Tem certeza de que deseja excluir o usuário{" "}
                             <strong>{userToDelete.name}</strong>?
