@@ -1,9 +1,10 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import LoadingOrError from "@/components/LoadingOrError";
-import { FaArrowLeft, FaVideo, FaFileAlt, FaTasks, FaUsers, FaChevronRight } from "react-icons/fa";
+import { FaArrowLeft, FaVideo, FaFileAlt, FaTasks, FaUsers, FaChevronRight, FaCheck } from "react-icons/fa";
 import { sanitize } from "@/lib/sanitize";
 
 interface Lesson {
@@ -18,10 +19,17 @@ interface LessonContent {
   id: number;
   lesson_id: number;
   content_type: "video" | "text" | "activity" | "reunion";
-  title: string; 
+  title: string;
   description: string;
   completed: boolean;
 }
+
+const TYPE_META: Record<string, { icon: JSX.Element; label: string }> = {
+  video:    { icon: <FaVideo className="text-info" />,      label: "Vídeo"      },
+  text:     { icon: <FaFileAlt className="text-success" />, label: "Texto"      },
+  activity: { icon: <FaTasks className="text-warning" />,   label: "Atividade"  },
+  reunion:  { icon: <FaUsers className="text-secondary" />, label: "Reunião"    },
+};
 
 export default function LessonPage() {
   const params = useParams();
@@ -32,203 +40,128 @@ export default function LessonPage() {
   const [contents, setContents] = useState<LessonContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Estado para armazenar as contagens de cada tipo de conteúdo
-  const [contentSummary, setContentSummary] = useState({
-    videos: 0,
-    texts: 0,
-    activities: 0,
-    reunions: 0
-  });
+  const [summary, setSummary] = useState({ videos: 0, texts: 0, activities: 0, reunions: 0 });
 
   useEffect(() => {
-    const fetchLessonDetails = async () => {
-      try {
-        const response = await fetch(`/api/lessons/${lessonId}`);
-        if (!response.ok) {
-          throw new Error("Falha ao carregar detalhes da aula");
-        }
-        
-        const data = await response.json();
+    if (!lessonId) { setError("Parâmetros inválidos."); setLoading(false); return; }
+
+    fetch(`/api/lessons/${lessonId}`)
+      .then(r => { if (!r.ok) throw new Error("Falha ao carregar aula"); return r.json(); })
+      .then(data => {
         setLesson(data.lesson);
         setContents(data.contents || []);
-        
-        // Calcular contagens de cada tipo de conteúdo
-        const summary = {
-          videos: 0,
-          texts: 0,
-          activities: 0,
-          reunions: 0
-        };
-        
-        data.contents?.forEach((content: LessonContent) => {
-          if (content.content_type === 'video') summary.videos++;
-          else if (content.content_type === 'text') summary.texts++;
-          else if (content.content_type === 'activity') summary.activities++;
-          else if (content.content_type === 'reunion') summary.reunions++;
+        const s = { videos: 0, texts: 0, activities: 0, reunions: 0 };
+        data.contents?.forEach((c: LessonContent) => {
+          if (c.content_type === "video") s.videos++;
+          else if (c.content_type === "text") s.texts++;
+          else if (c.content_type === "activity") s.activities++;
+          else if (c.content_type === "reunion") s.reunions++;
         });
-        
-        setContentSummary(summary);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (lessonId) {
-      fetchLessonDetails();
-    } else {
-      setError("Parâmetros inválidos ou ausentes.");
-      setLoading(false);
-    }
+        setSummary(s);
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
   }, [lessonId]);
 
-  // Função para retornar o ícone baseado no tipo de conteúdo
-  const getContentIcon = (contentType: string) => {
-    switch (contentType) {
-      case "video":
-        return <FaVideo className="text-info" />;
-      case "text":
-        return <FaFileAlt className="text-success" />;
-      case "activity":
-        return <FaTasks className="text-warning" />;
-      case "reunion":
-        return <FaUsers className="text-secondary" />;
-      default:
-        return <FaFileAlt className="text-base-content/40" />;
-    }
-  };
+  if (loading || error) return <LoadingOrError loading={loading} error={error} />;
 
-  // Função para retornar o rótulo baseado no tipo de conteúdo
-  const getContentTypeLabel = (contentType: string) => {
-    switch (contentType) {
-      case "video":
-        return "Vídeo";
-      case "text":
-        return "Texto";
-      case "activity":
-        return "Atividade";
-      case "reunion":
-        return "Reunião";
-      default:
-        return "Conteúdo";
-    }
-  };
+  if (!lesson) return (
+    <div className="max-w-2xl mx-auto px-6 py-12 text-center">
+      <p className="font-serif text-xl">Aula não encontrada</p>
+      <p className="text-base-content/50 text-sm mt-2">A aula solicitada não existe ou você não tem acesso.</p>
+      <Link href="/dashboard/lessons" className="btn btn-primary btn-sm mt-6">Ver todas as aulas</Link>
+    </div>
+  );
 
-  // Função para navegar para o tipo específico de conteúdo
-  const navigateToContent = (contentId: number, contentType: string) => {
-    router.push(`/dashboard/lessons/${lessonId}/${contentId}/${contentType}`);
-  };
-
-  if (loading || error) {
-    return <LoadingOrError loading={loading} error={error} />;
-  }
+  const totalContents = summary.videos + summary.texts + summary.activities + summary.reunions;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <Link href="/dashboard/lessons" className="btn btn-ghost btn-sm gap-1">
-          <FaArrowLeft size={12} /> Voltar para Aulas
-        </Link>
-      </div>
+    <div className="max-w-2xl mx-auto px-6 py-8">
 
-      {lesson ? (
-        <>
-          <div className="mb-8">
-            <div className="text-sm breadcrumbs">
-              <ul>
-                <li><Link href="/dashboard">Dashboard</Link></li>
-                <li><Link href="/dashboard/lessons">Aulas</Link></li>
-                <li>{lesson.course_name}</li>
-              </ul>
-            </div>
+      {/* Navegação */}
+      <Link href="/dashboard/lessons" className="inline-flex items-center gap-1.5 text-xs text-base-content/40 hover:text-primary transition-colors mb-8">
+        <FaArrowLeft className="text-[10px]" /> {lesson.course_name}
+      </Link>
 
-            <h1 className="font-display text-2xl mt-4">{lesson.title}</h1>
-            <p className="mt-2 text-base-content/80">{lesson.lesson_description}</p>
-            
-            {/* Resumo dos conteúdos */}
-            <div className="mt-4 bg-base-200 p-3">
-              <div className="flex flex-wrap gap-3">
-                {contentSummary.texts > 0 && (
-                  <div className="badge badge-lg badge-outline gap-1">
-                    <FaFileAlt className="text-success" /> {contentSummary.texts} {contentSummary.texts === 1 ? 'texto' : 'textos'}
-                  </div>
-                )}
-                {contentSummary.videos > 0 && (
-                  <div className="badge badge-lg badge-outline gap-1">
-                    <FaVideo className="text-info" /> {contentSummary.videos} {contentSummary.videos === 1 ? 'vídeo' : 'vídeos'}
-                  </div>
-                )}
-                {contentSummary.activities > 0 && (
-                  <div className="badge badge-lg badge-outline gap-1">
-                    <FaTasks className="text-warning" /> {contentSummary.activities} {contentSummary.activities === 1 ? 'atividade' : 'atividades'}
-                  </div>
-                )}
-                {contentSummary.reunions > 0 && (
-                  <div className="badge badge-lg badge-outline gap-1">
-                    <FaUsers className="text-secondary" /> {contentSummary.reunions} {contentSummary.reunions === 1 ? 'reunião' : 'reuniões'}
-                  </div>
-                )}
-                {(contentSummary.texts + contentSummary.videos + contentSummary.activities + contentSummary.reunions) === 0 && (
-                  <span className="text-sm text-base-content/70">Nenhum conteúdo disponível</span>
-                )}
-              </div>
-            </div>
+      {/* Cabeçalho */}
+      <header className="mb-8">
+        <h1 className="font-display text-3xl md:text-4xl leading-tight">{lesson.title}</h1>
+        {lesson.lesson_description && (
+          <p className="mt-3 text-sm text-base-content/60 leading-relaxed">{lesson.lesson_description}</p>
+        )}
+
+        {/* Resumo de conteúdos */}
+        {totalContents > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {summary.texts > 0 && (
+              <span className="badge badge-outline gap-1">
+                <FaFileAlt className="text-success text-[10px]" />
+                {summary.texts} {summary.texts === 1 ? "texto" : "textos"}
+              </span>
+            )}
+            {summary.videos > 0 && (
+              <span className="badge badge-outline gap-1">
+                <FaVideo className="text-info text-[10px]" />
+                {summary.videos} {summary.videos === 1 ? "vídeo" : "vídeos"}
+              </span>
+            )}
+            {summary.activities > 0 && (
+              <span className="badge badge-outline gap-1">
+                <FaTasks className="text-warning text-[10px]" />
+                {summary.activities} {summary.activities === 1 ? "atividade" : "atividades"}
+              </span>
+            )}
+            {summary.reunions > 0 && (
+              <span className="badge badge-outline gap-1">
+                <FaUsers className="text-secondary text-[10px]" />
+                {summary.reunions} {summary.reunions === 1 ? "reunião" : "reuniões"}
+              </span>
+            )}
           </div>
+        )}
+      </header>
 
-          <div className="divider">Conteúdos da Aula</div>
-
-          {contents.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-xl font-medium">Esta aula ainda não possui conteúdos.</p>
-              <p className="text-base-content/70 mt-2">Os conteúdos serão adicionados em breve pelo professor.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {contents.map((content) => (
-                <div
-                  key={content.id}
-                  className="card bg-base-100 border border-base-content/8 cursor-pointer hover:bg-base-200/50 transition-colors"
-                  onClick={() => navigateToContent(content.id, content.content_type)}
-                >
-                  <div className="card-body p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1">
-                          {getContentIcon(content.content_type)}
-                        </div>
-                        <div>
-                          <h3 className="font-medium">{content.title}</h3>
-                          <div 
-                            className="text-sm text-base-content/70 line-clamp-2 my-3"
-                            dangerouslySetInnerHTML={{ __html: sanitize(content.description) }}
-                          ></div>
-                          <span className="badge badge-sm mt-2">
-                            {getContentTypeLabel(content.content_type)}
-                          </span>
-                          {content.completed && (
-                            <span className="badge badge-sm badge-success ml-2">Concluído</span>
-                          )}
-                        </div>
-                      </div>
-                      <FaChevronRight className="text-primary/70" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+      {/* Lista de conteúdos */}
+      {contents.length === 0 ? (
+        <div className="border border-base-content/8 p-8 text-center">
+          <p className="font-serif text-lg text-base-content/60">Esta aula ainda não possui conteúdos.</p>
+          <p className="text-xs text-base-content/40 mt-2">Os conteúdos serão adicionados em breve.</p>
+        </div>
       ) : (
-        <div className="text-center py-10">
-          <p className="text-xl font-medium">Aula não encontrada</p>
-          <p className="text-base-content/70 mt-2">A aula solicitada não existe ou você não tem acesso a ela.</p>
-          <Link href="/dashboard/lessons" className="btn btn-primary mt-4">
-            Ver todas as aulas
-          </Link>
+        <div className="border border-base-content/8 divide-y divide-base-content/8">
+          {contents.map((content) => {
+            const meta = TYPE_META[content.content_type] ?? { icon: <FaFileAlt className="text-base-content/40" />, label: "Conteúdo" };
+            return (
+              <button
+                key={content.id}
+                className="w-full flex items-center gap-4 p-4 hover:bg-base-200/50 transition-colors text-left group"
+                onClick={() => router.push(`/dashboard/lessons/${lessonId}/${content.id}/${content.content_type}`)}
+              >
+                <span className="shrink-0 text-base mt-0.5">{meta.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm">{content.title}</p>
+                  {content.description && (
+                    <div
+                      className="text-xs text-base-content/50 line-clamp-1 mt-0.5"
+                      dangerouslySetInnerHTML={{ __html: sanitize(content.description) }}
+                    />
+                  )}
+                  <span className="text-[0.6rem] uppercase tracking-widest text-base-content/30 mt-1 block">
+                    {meta.label}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {content.completed && (
+                    <FaCheck className="text-success text-xs" title="Concluído" />
+                  )}
+                  <FaChevronRight className="text-base-content/20 group-hover:text-primary transition-colors text-xs" />
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
+
     </div>
   );
 }
