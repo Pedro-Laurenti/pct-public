@@ -1,505 +1,446 @@
 import Header from "@/components/header";
 import { BsYoutube, BsWhatsapp, BsInstagram } from "react-icons/bs";
-import { HiAcademicCap, HiClock, HiCheck, HiCheckCircle, HiHeart, HiTicket, HiDocument, HiQuestionMarkCircle, HiBookOpen, HiOfficeBuilding } from "react-icons/hi";
 import type { Metadata } from "next";
 import Logo from "@/components/logo";
 import FadeIn from "@/components/FadeIn";
+import Link from "next/link";
+import pool from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "Psicologia Católica Tradicional | Visão Tomista da Alma Humana",
+  title: "Psicologia Católica Tomista | Formação Integral da Alma",
   description: "Resgatando a sabedoria perene da psicologia tomista para o ordenamento da alma humana. Mentoria, cursos e formação na tradicional visão católica da pessoa.",
   keywords: "psicologia católica, psicologia tomista, são tomás de aquino, mentoria católica, desenvolvimento integral, alma humana",
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
-    other: {
-      rel: 'apple-touch-icon-precomposed',
-      url: '/favicon.ico',
-    },
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 
-export default function LandingPage() {
+interface Course {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number;
+}
+
+async function getActiveCourses(): Promise<Course[]> {
+  try {
+    const [rows] = await pool.execute(
+      "SELECT id, name, description, price FROM Courses WHERE is_active = 1 ORDER BY id"
+    );
+    return (rows as Course[]).map(r => ({ ...r, price: parseFloat(String(r.price)) }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function LandingPage() {
+  const courses = await getActiveCourses();
+
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-base-100" data-theme="mydark">
       <Header />
-        {/* Hero Section - More professional, cleaner design */}
-      <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-b from-primary/10 to-base-100 overflow-hidden py-16">
-        {/* Background image overlay */}
-        <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-[url('/images/2.jpg')] bg-cover bg-center bg-no-repeat opacity-20"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-base-100/80 to-base-100/95"></div>
-        </div>        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-12">
-          {/* Left: Text */}
-          <FadeIn direction="left" duration={1.5} threshold={0.2} className="w-full md:w-1/2">
-            <div className="flex flex-col items-center md:items-start text-center md:text-left">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 font-serif leading-tight">
-                Psicologia Católica<br />
-                <span className="text-primary">Tradicional</span>
-              </h1>
-              <p className="text-lg sm:text-xl mb-8 max-w-lg">
-                <span className="font-semibold text-primary border-l-4 border-primary pl-3">
-                  Resgatando a sabedoria perene para o ordenamento da alma humana.
-                </span>
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center md:justify-start">
-                <a href="https://wa.me/5562821377" className="btn btn-primary btn-lg gap-2">
-                  <BsWhatsapp size={20} />
-                  Faça parte
-                </a>
-                <a href="#sobre" className="btn btn-outline btn-lg">
-                  Conhecer
-                </a>
-              </div>
-              <div className="mt-8">
-                <span className="badge badge-outline p-4 font-serif">In Nomine Domini</span>
-              </div>
+
+      {/* ── Hero ── */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/2.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-base-100/82" />
+
+        <div className="relative z-10 flex flex-col items-center text-center px-6 py-32 max-w-3xl mx-auto">
+          <FadeIn direction="down" duration={1.4} threshold={0.1}>
+            <div className="w-20 h-20 mx-auto mb-10">
+              <Logo />
             </div>
           </FadeIn>
-          {/* Right: Image */}
-          <FadeIn direction="right" duration={1.5} delay={0.3} threshold={0.2} className="w-full md:w-1/2">
-            <div className="flex justify-center items-center mb-8 md:mb-0">
-              <div className="relative max-h-96 rounded-xl shadow-xl overflow-hidden">
-                <img
-                  src="/images/1.jpg"
-                  alt="Psicologia Católica Tradicional"
-                  className="w-full h-full object-cover rounded-xl"
-                />
-                <div className="absolute inset-0 rounded-xl ring-4 ring-primary/10 pointer-events-none"></div>
-              </div>
+
+          <FadeIn direction="up" delay={0.2} duration={1.4} threshold={0.1}>
+            <p className="text-[0.6rem] tracking-[0.4em] text-base-content/30 uppercase mb-6">
+              Psicologia Católica Tomista
+            </p>
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl text-gold leading-[1.1] mb-6">
+              Ordena a alma.<br />Ilumina a mente.
+            </h1>
+            <p className="font-serif text-base-content/50 text-lg italic leading-relaxed max-w-xl mx-auto mb-10">
+              &ldquo;A perfeição cristã nada mais é do que ser o que Deus quer que sejamos.&rdquo;
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/login" className="btn btn-primary btn-lg tracking-wider">
+                Começar agora
+              </Link>
+              <a href="#formacao" className="btn btn-outline btn-lg tracking-wider">
+                Conhecer
+              </a>
             </div>
           </FadeIn>
         </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-base-content/20">
+          <div className="w-px h-12 bg-base-content/15" />
+          <span className="text-[0.5rem] tracking-[0.3em] uppercase">Descubra</span>
+        </div>
       </section>
-      {/* About Section - Professional and concise */}
-      <section id="sobre" className="py-20 bg-base-200">
-        <div className="container mx-auto px-4">
-          <FadeIn direction="down" className="w-full" duration={1.5} threshold={0.15}>
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-serif mb-3 text-primary">Fé e Razão</h2>
-              <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
-              <p className="text-xl max-w-3xl mx-auto">A verdadeira psicologia baseada nos ensinamentos de Santo Tomás de Aquino</p>
+
+      {/* ── Três Pilares ── */}
+      <section id="formacao" className="py-28 bg-base-100">
+        <div className="max-w-5xl mx-auto px-6">
+          <FadeIn direction="down" threshold={0.1}>
+            <div className="text-center mb-20">
+              <p className="text-[0.55rem] tracking-[0.35em] uppercase text-base-content/30 mb-4">
+                Fundamentos
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl text-base-content">
+                Fé e <span className="text-gold">Razão</span>
+              </h2>
+              <div className="flex items-center gap-3 mt-8 max-w-xs mx-auto">
+                <div className="flex-1 border-t border-base-content/10" />
+                <span className="text-primary/30 text-[0.5rem]">✦</span>
+                <div className="flex-1 border-t border-base-content/10" />
+              </div>
             </div>
           </FadeIn>
-            <div className="grid md:grid-cols-3 gap-8 mt-16">
+
+          <div className="grid md:grid-cols-3 gap-0 border border-base-content/8">
             {[
               {
-                image: '3.jpg',
-                title: 'Visão Integral',
-                description: 'Unidade substancial de corpo e alma, considerando todas as dimensões da pessoa humana.'
+                numeral: "I",
+                title: "Visão Integral",
+                body: "Unidade substancial de corpo e alma, considerando todas as dimensões da pessoa humana segundo Santo Tomás.",
+                image: "3.jpg",
               },
               {
-                image: '4.jpg',
-                title: 'Método Eficaz',
-                description: 'Ordenamento das potências da alma para alcançar a perfeição cristã e a verdadeira felicidade.'
+                numeral: "II",
+                title: "Método Eficaz",
+                body: "Ordenamento das potências da alma para alcançar a perfeição cristã e a verdadeira felicidade.",
+                image: "4.jpg",
               },
               {
-                image: '5.jpg',
-                title: 'Mentoria Contínua',
-                description: 'Acompanhamento personalizado com acesso vitalício às aulas e materiais de formação.'
-              }
-            ].map((card, index) => (
-              <FadeIn key={index} direction="up" delay={index * 0.15} className="w-full">
-                <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all h-full">
-                  <figure className="px-6 pt-6">
-                    <img 
-                      src={`/images/${card.image}`}
-                      alt={card.title}
-                      className="h-48 w-full object-cover rounded-xl"
-                    />
-                  </figure>
-                  <div className="card-body items-center text-center">
-                    <h3 className="card-title font-serif text-primary">{card.title}</h3>
-                    <p className="text-sm">{card.description}</p>
-                  </div>
+                numeral: "III",
+                title: "Formação Contínua",
+                body: "Acompanhamento personalizado com acesso vitalício às aulas e materiais de formação.",
+                image: "5.jpg",
+              },
+            ].map((pillar, i) => (
+              <FadeIn key={i} direction="up" delay={i * 0.12} threshold={0.1}>
+                <div className="border-r border-base-content/8 last:border-r-0 p-10 group hover:bg-base-200/60 transition-colors duration-500">
+                  <p className="font-display text-7xl text-primary/10 leading-none mb-6 select-none group-hover:text-primary/18 transition-colors">
+                    {pillar.numeral}
+                  </p>
+                  <div
+                    className="w-full h-40 bg-cover bg-center mb-6 opacity-60 group-hover:opacity-75 transition-opacity"
+                    style={{ backgroundImage: `url('/images/${pillar.image}')` }}
+                  />
+                  <h3 className="font-serif text-lg text-base-content mb-3 tracking-wide">{pillar.title}</h3>
+                  <p className="text-sm text-base-content/50 leading-relaxed">{pillar.body}</p>
                 </div>
               </FadeIn>
             ))}
           </div>
         </div>
-      </section>      {/* Mentorship Program Section - Concise and focused */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="md:w-1/2 w-full">
-              <FadeIn direction="left">
-                <div className="relative bg-base-300 p-8 rounded-lg shadow-xl flex items-center justify-center">
-                  <div className="max-w-72">
-                    <Logo />
-                  </div>
-                  <div className="absolute -bottom-6 -right-6 bg-primary text-white p-4 rounded shadow-lg">
-                    <p className="text-xl font-serif">Acesso vitalício às aulas</p>
-                  </div>
-                </div>
-              </FadeIn>
+      </section>
+
+      {/* ── Equipe ── */}
+      <section className="py-28 bg-base-200">
+        <div className="max-w-5xl mx-auto px-6">
+          <FadeIn direction="down" threshold={0.1}>
+            <div className="mb-16">
+              <p className="text-[0.55rem] tracking-[0.35em] uppercase text-base-content/30 mb-4">
+                Mentores
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl text-base-content">
+                Quem ensina a <span className="text-gold">doutrina</span>
+              </h2>
             </div>
-            
-            <div className="md:w-1/2">
-              <FadeIn direction="right" delay={0.2}>
-                <h2 className="text-4xl font-serif mb-6">Programa de <span className="text-primary">Mentoria</span></h2>
-                <div className="divider mb-6"></div>
-                <div className="space-y-6">
-                {[
-                  { 
-                    icon: <HiAcademicCap className="w-6 h-6 text-primary" />, 
-                    text: "Seis encontros por módulo com interação ao vivo" 
-                  },
-                  { 
-                    icon: <HiClock className="w-6 h-6 text-primary" />, 
-                    text: "Temas cuidadosamente selecionados para iluminar a inteligência e orientar a vontade" 
-                  },
-                  { 
-                    icon: <HiCheckCircle className="w-6 h-6 text-primary" />, 
-                    text: "Aplicável para qualquer pessoa com desejo de autodesenvolvimento integral" 
-                  },
-                  { 
-                    icon: <HiHeart className="w-6 h-6 text-primary" />, 
-                    text: "Ferramenta para viver de forma plena e feliz mesmo em meio às dificuldades da vida" 
-                  }
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                      {item.icon}
-                    </div>
-                    <p className="font-medium">{item.text}</p>
-                  </div>
-                ))}
+          </FadeIn>
+
+          <div className="space-y-0">
+            {/* Liliane */}
+            <FadeIn direction="left" threshold={0.1}>
+              <div className="flex flex-col md:flex-row border border-base-content/8">
+                <div
+                  className="md:w-2/5 h-72 md:h-auto bg-cover bg-center"
+                  style={{ backgroundImage: "url('/images/liliane-lopes.jpg')" }}
+                />
+                <div className="md:w-3/5 p-10 flex flex-col justify-center">
+                  <p className="text-[0.55rem] tracking-[0.3em] uppercase text-primary/50 mb-3">
+                    Psicóloga Tomista
+                  </p>
+                  <h3 className="font-display text-3xl text-base-content mb-4">Liliane Lopes</h3>
+                  <blockquote className="font-serif italic text-base-content/50 text-sm border-l-2 border-primary/25 pl-4 mb-6 leading-relaxed">
+                    &ldquo;Este trabalho é tanto um apostolado quanto um modo de fazer o bem.&rdquo;
+                  </blockquote>
+                  <ul className="space-y-1.5 text-sm text-base-content/50">
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      Especialista em Bioética
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      10 anos de dedicação à Psicologia Tomista
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      Mentora especializada
+                    </li>
+                  </ul>
                 </div>
-                  <div className="mt-8">
-                  <a href="https://wa.me/5562821377" className="btn btn-primary">
-                    <BsWhatsapp className="w-4 h-4" />
-                    Faça parte
+              </div>
+            </FadeIn>
+
+            {/* Jean */}
+            <FadeIn direction="right" threshold={0.1}>
+              <div className="flex flex-col md:flex-row-reverse border border-base-content/8 border-t-0">
+                <div
+                  className="md:w-2/5 h-72 md:h-auto bg-cover bg-center"
+                  style={{ backgroundImage: "url('/images/jean-lopes.jpg')" }}
+                />
+                <div className="md:w-3/5 p-10 flex flex-col justify-center">
+                  <p className="text-[0.55rem] tracking-[0.3em] uppercase text-primary/50 mb-3">
+                    Terapeuta Tomista · Filósofo
+                  </p>
+                  <h3 className="font-display text-3xl text-base-content mb-4">Jean Carlos Lopes</h3>
+                  <blockquote className="font-serif italic text-base-content/50 text-sm border-l-2 border-primary/25 pl-4 mb-6 leading-relaxed">
+                    &ldquo;A verdade é a medida da alma. Quando a alma encontra a verdade, reencontra a si mesma.&rdquo;
+                  </blockquote>
+                  <ul className="space-y-1.5 text-sm text-base-content/50">
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      Formado em Filosofia
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      Pós-graduado em Psicologia Tomista
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      Especialista em Educação Clássica
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary/50 shrink-0" />
+                      Atendimento individual e familiar
+                    </li>
+                  </ul>
+                  <a
+                    href="mailto:psicologiacatolicatradicional@gmail.com"
+                    className="mt-6 text-xs text-base-content/35 hover:text-base-content/60 transition-colors tracking-wider"
+                  >
+                    psicologiacatolicatradicional@gmail.com
                   </a>
                 </div>
-              </FadeIn>
-            </div>
-          </div>
-        </div>
-      </section>      {/* Tomist Psychology Section - Professional and impactful */}
-      <section className="py-24 bg-base-200 relative overflow-hidden">
-        <div className="absolute inset-0 w-full h-full opacity-30">
-          <div className="w-full h-full bg-[url('/images/7.jpg')] bg-no-repeat bg-cover bg-center"></div>
-        </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="md:w-1/2">
-              <FadeIn direction="left">
-                <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Psicologia</span> Tomista</h2>
-                <div className="divider mb-6"></div>
-                  <blockquote className="italic text-xl mb-8 border-l-4 border-primary pl-4 py-2">
-                    "A perfeição cristã nada mais é do que ser o que Deus quer que sejamos."
-                  </blockquote>
-                  <div className="space-y-6">
-                  {[
-                    {
-                      title: "Iluminação da Inteligência",
-                      description: "Desenvolvimento da capacidade de discernimento e compreensão da realidade."
-                    },
-                    {
-                      title: "Fortalecimento da Vontade",
-                      description: "Disciplina interior para buscar o bem verdadeiro e perseverar no caminho virtuoso."
-                    },
-                    {
-                      title: "Transformação Interior",
-                      description: "Crescimento pessoal através do cultivo sistemático das virtudes cardeais e teologais."
-                    }
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start gap-4">
-                      <div className="p-3 bg-primary text-white rounded-lg mt-1">
-                        <HiCheck className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">{item.title}</h3>
-                        <p className="text-sm opacity-75">{item.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </FadeIn>
-            </div>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Team Section - Professional and elegant */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <FadeIn direction="down">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif">Nossa <span className="text-primary">Equipe</span></h2>
-              <div className="w-20 h-1 bg-primary mx-auto mt-2 mb-4"></div>
-              <p className="text-base max-w-2xl mx-auto">Profissionais dedicados à Psicologia Tomista e ao desenvolvimento integral da pessoa humana.</p>
+      {/* ── Carrossel de Cursos ── */}
+      {courses.length > 0 && (
+        <section className="py-28 bg-base-100 overflow-hidden">
+          <div className="max-w-5xl mx-auto px-6 mb-12">
+            <FadeIn direction="down" threshold={0.1}>
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                <div>
+                  <p className="text-[0.55rem] tracking-[0.35em] uppercase text-base-content/30 mb-4">
+                    Formação
+                  </p>
+                  <h2 className="font-display text-4xl md:text-5xl text-base-content">
+                    Cursos <span className="text-gold">disponíveis</span>
+                  </h2>
+                </div>
+                <Link
+                  href="/login"
+                  className="btn btn-outline btn-sm tracking-wider self-start md:self-auto shrink-0"
+                >
+                  Ver todos
+                </Link>
+              </div>
+            </FadeIn>
+          </div>
+
+          <FadeIn direction="up" delay={0.1} threshold={0.05}>
+            <div className="carousel carousel-center gap-4 px-6 pb-4 max-w-5xl mx-auto w-full">
+              {courses.map((course, i) => (
+                <div
+                  key={course.id}
+                  className="carousel-item w-72 md:w-80 shrink-0"
+                >
+                  <div
+                    className="w-full border border-base-content/10 bg-base-200 p-8 flex flex-col hover:border-primary/30 transition-colors duration-300 group"
+                  >
+                    <p className="font-display text-6xl text-primary/10 leading-none mb-6 select-none group-hover:text-primary/18 transition-colors">
+                      {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <h3 className="font-serif text-lg text-base-content mb-3 leading-snug">
+                      {course.name}
+                    </h3>
+                    {course.description && (
+                      <p className="text-sm text-base-content/45 leading-relaxed mb-6 line-clamp-3">
+                        {course.description}
+                      </p>
+                    )}
+                    <div className="mt-auto flex items-center justify-between">
+                      <span className="text-base-content/40 text-sm">
+                        {course.price === 0 ? (
+                          <span className="text-success font-semibold text-xs tracking-widest uppercase">Gratuito</span>
+                        ) : (
+                          <span className="font-semibold text-base-content">R$ {course.price.toFixed(2)}</span>
+                        )}
+                      </span>
+                      <Link
+                        href="/login"
+                        className="btn btn-primary btn-xs tracking-wider"
+                      >
+                        Acessar
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </FadeIn>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Liliane Lopes */}
-            <FadeIn direction="left">
-              <div className="bg-base-100 rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
-                <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-2/5 h-60 sm:h-auto bg-[url('/images/liliane-lopes.jpg')] bg-cover bg-center"></div>
-                  <div className="p-5 sm:w-3/5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1 bg-primary h-8"></div>
-                      <div>
-                        <h3 className="text-xl font-serif">Liliane Lopes</h3>
-                        <div className="badge badge-primary badge-sm">Psicóloga Tomista</div>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm italic border-l-2 border-primary/30 pl-3 py-1 mb-3">
-                      "Este trabalho é tanto um apostolado quanto um modo de fazer o bem..."
-                    </p>
-                    
-                    <ul className="text-sm space-y-1 mb-3">
-                      {[
-                        "Especialista em Bioética",
-                        "10 anos de dedicação à Psicologia Tomista",
-                        "Mentora especializada"
-                      ].map((qualification, index) => (
-                        <li key={index} className="flex items-center gap-1">
-                          <HiCheckCircle className="h-4 w-4 text-primary" />
-                          <span>{qualification}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <a href="https://wa.me/5562821377" className="btn btn-primary btn-xs gap-1 mt-2">
-                      <BsWhatsapp size={12} />
-                      Faça parte
-                    </a>
-                  </div>
+        </section>
+      )}
+
+      {/* ── Programa de Mentoria ── */}
+      <section className="py-28 bg-base-200">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-16">
+            <FadeIn direction="left" threshold={0.1} className="md:w-5/12">
+              <div className="border border-base-content/8 p-10 flex items-center justify-center aspect-square">
+                <div className="w-48 h-48">
+                  <Logo />
                 </div>
               </div>
             </FadeIn>
-            
-            {/* Jean Carlos Lopes */}
-            <FadeIn direction="right">
-              <div className="bg-base-100 rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
-                <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-2/5 h-60 sm:h-auto bg-[url('/images/jean-lopes.jpg')] bg-cover bg-center"></div>
-                  <div className="p-5 sm:w-3/5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1 bg-primary h-8"></div>
-                      <div>
-                        <h3 className="text-xl font-serif">Jean Carlos Lopes</h3>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          <div className="badge badge-primary badge-sm">Terapeuta Tomista</div>
-                          <div className="badge badge-outline badge-sm">Filósofo</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm italic border-l-2 border-primary/30 pl-3 py-1 mb-3">
-                      "A verdade é a medida da alma. Quando a alma encontra a verdade, reencontra a si mesma."
-                    </p>
-                    
-                    <ul className="text-sm space-y-1 mb-3">
-                      {[
-                        "Formado em Filosofia",
-                        "Pós-graduado em Psicologia Tomista",
-                        "Especialista em Educação Clássica",
-                        "Atendimento individual e familiar"
-                      ].map((qualification, index) => (
-                        <li key={index} className="flex items-center gap-1">
-                          <HiCheckCircle className="h-4 w-4 text-primary" />
-                          <span>{qualification}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <div className="flex items-center gap-2">
-                      <a href="https://wa.me/5562993989726" className="btn btn-primary btn-xs gap-1">
-                        <BsWhatsapp size={12} />
-                        WhatsApp
-                      </a>
-                      <a href="mailto:psicologiacatolicatradicional@gmail.com" className="btn btn-outline btn-xs">E-mail</a>
-                    </div>
+
+            <FadeIn direction="right" delay={0.15} threshold={0.1} className="md:w-7/12">
+              <p className="text-[0.55rem] tracking-[0.35em] uppercase text-base-content/30 mb-4">
+                Programa
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl text-base-content mb-2">
+                Mentoria <span className="text-gold">Tomista</span>
+              </h2>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="flex-1 border-t border-base-content/10" />
+                <span className="text-primary/30 text-[0.5rem]">✦</span>
+                <div className="flex-1 border-t border-base-content/10" />
+              </div>
+
+              <div className="space-y-6">
+                {[
+                  "Seis encontros por módulo com interação ao vivo",
+                  "Temas selecionados para iluminar a inteligência e orientar a vontade",
+                  "Aplicável a qualquer pessoa com desejo de autodesenvolvimento integral",
+                  "Ferramenta para viver de forma plena e feliz mesmo nas dificuldades",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-4">
+                    <span className="font-display text-2xl text-primary/30 leading-none mt-0.5 shrink-0 w-6">
+                      {i + 1}
+                    </span>
+                    <p className="text-sm text-base-content/60 leading-relaxed">{item}</p>
                   </div>
-                </div>
+                ))}
+              </div>
+
+              <div className="mt-10">
+                <Link href="/login" className="btn btn-primary tracking-wider">
+                  Acessar a formação
+                </Link>
               </div>
             </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Curso de Educação Católica dos Filhos Section */}      
-      <section className="py-20 bg-base-200">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="md:w-1/2">
-              <FadeIn direction="left">
-                <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Curso de Educação</span> Católica dos Filhos</h2>
-                <div className="divider mb-6"></div>
-                <div className="space-y-6">
-                  <div className="bg-base-100 p-5 rounded-lg shadow-lg">
-                    <div className="flex items-center">
-                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                        <HiBookOpen className="w-8 h-8 text-primary" />
-                      </div>
-                      <div>
-                        <div className="badge badge-secondary mb-2">em breve</div>
-                        <h3 className="text-xl font-medium">Formação completa para pais católicos</h3>
-                      </div>
-                    </div>
-                    <p className="mt-4 text-base-content/80">
-                      Um programa abrangente para auxiliar pais na educação de seus filhos segundo os princípios da tradição católica, formando jovens virtuosos prontos para enfrentar os desafios do mundo moderno.
-                    </p>
-                    <div className="mt-5">
-                      <a href="https://wa.me/5562821377" className="btn btn-outline btn-sm">
-                        Lista de espera
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </FadeIn>
+      {/* ── CTA ── */}
+      <section className="relative py-36 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/8.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-base-100/88" />
+
+        <FadeIn direction="up" threshold={0.1}>
+          <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+            <div className="w-12 h-12 mx-auto mb-8">
+              <Logo />
             </div>
-            
-            <div className="md:w-1/2">
-              <FadeIn direction="right" delay={0.2}>
-                <div className="relative">
-                  <div className="w-full h-80 bg-[url('/images/4.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
-                </div>
-              </FadeIn>
-            </div>
+
+            <h2 className="font-display text-5xl md:text-6xl text-gold mb-6 leading-[1.1]">
+              Comece sua<br />formação hoje
+            </h2>
+
+            <p className="font-serif italic text-base-content/45 mb-10 leading-relaxed">
+              Acesso vitalício — módulos contínuos — acompanhamento ao vivo
+            </p>
+
+            <Link href="/login" className="btn btn-primary btn-lg tracking-wider">
+              Acessar a plataforma
+            </Link>
           </div>
-        </div>
+        </FadeIn>
       </section>
 
-      {/* Virtus et Opus Section */}      
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row-reverse items-center gap-12">
-            <div className="md:w-1/2">
-              <FadeIn direction="right">
-                <h2 className="text-4xl font-serif mb-6"><span className="text-primary">Virtus et Opus</span></h2>
-                <h3 className="text-xl mb-4">Consultoria empresarial tomista - Avaliação psicossocial RN1</h3>
-                <div className="divider mb-6"></div>
-                <div className="space-y-6">
-                  {[
-                    { title: "Princípios tomistas", description: "Aplicação dos princípios da filosofia tomista no ambiente empresarial." },
-                    { title: "Ordenamento corporativo", description: "Estruturação hierárquica e organizacional baseada no bem comum da empresa." },
-                    { title: "Formação de líderes", description: "Desenvolvimento de lideranças virtuosas capazes de conduzir suas equipes com justiça e prudência." }
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start gap-4">
-                      <div className="p-3 bg-primary text-white rounded-lg mt-1">
-                        <HiCheck className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">{item.title}</h3>
-                        <p className="text-sm opacity-75">{item.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="mt-6">
-                    <a href="https://wa.me/5562821377" className="btn btn-primary">
-                      <BsWhatsapp className="w-4 h-4" />
-                      Solicitar consultoria
-                    </a>
-                  </div>
-                </div>
-              </FadeIn>
+      {/* ── Footer ── */}
+      <footer className="bg-base-300 border-t border-base-content/8">
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12">
+            <div>
+              <div className="w-8 h-8 mb-4">
+                <Logo />
+              </div>
+              <p className="font-serif text-base-content/60 text-sm mb-1">Psicologia Católica Tomista</p>
+              <p className="text-[0.6rem] tracking-[0.2em] uppercase text-base-content/25">
+                Restaurando a verdadeira psicologia à luz do Tomismo
+              </p>
             </div>
 
-            <div className="md:w-1/2">
-              <FadeIn direction="left" delay={0.2}>
-                <div className="relative">
-                  <div className="w-full h-80 bg-[url('/images/9.jpg')] bg-cover bg-center rounded-lg shadow-2xl"></div>
-                  <div className="absolute -bottom-4 -right-4 bg-primary text-white p-3 rounded-lg shadow-lg">
-                    <p className="font-serif">Consultoria Empresarial Tomista</p>
-                  </div>
-                </div>
-              </FadeIn>
-            </div>
-          </div>
-        </div>
-      </section>
+            <div className="flex flex-col items-start md:items-end gap-5">
+              {/* Botão de contato — único ponto de entrada via WhatsApp */}
+              <a
+                href="https://wa.me/5562821377"
+                className="btn btn-outline gap-2 tracking-wider"
+              >
+                <BsWhatsapp size={16} />
+                Fale conosco
+              </a>
 
-      {/* CTA Section - Direct and professional */}      
-      <section className="py-16 bg-gradient-to-b from-primary/5 to-base-100 relative">
-        <div className="absolute inset-0 w-full h-full opacity-50">
-          <div className="w-full h-full bg-[url('/images/8.jpg')] bg-no-repeat bg-cover opacity-50"></div>
-        </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <FadeIn direction="up">
-            <div className="max-w-5xl mx-auto bg-base-300 p-12 rounded-lg shadow-2xl">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="md:w-2/3">
-                  <h2 className="text-4xl font-serif mb-6">Investimento para sua <span className="text-primary">Formação Integral</span></h2>
-                  <div className="flex items-center gap-6 mb-6">
-                  {[
-                    { icon: <HiTicket className="w-10 h-10" />, line1: "Acesso", line2: "Vitalício" },
-                    { icon: <HiDocument className="w-10 h-10" />, line1: "Módulos", line2: "Contínuos" },
-                    { icon: <HiQuestionMarkCircle className="w-10 h-10" />, line1: "Dúvidas", line2: "Ao Vivo" }
-                  ].map((item, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
-                        {item.icon}
-                      </div>
-                      <p className="font-semibold text-sm">{item.line1}<br />{item.line2}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                <p className="text-sm mb-6">Possibilidade de parcelamento via PIX. Entre em contato para saber mais.</p>
-                  <a href="https://wa.me/5562821377" className="btn btn-primary btn-lg gap-2">
-                  <BsWhatsapp size={20} />
-                  Faça parte
+              {/* Redes sociais */}
+              <div className="flex gap-3">
+                <a
+                  href="https://www.youtube.com/c/PSICOLOGIACAT%C3%93LICATRADICIONAL"
+                  className="btn btn-circle btn-ghost btn-sm text-base-content/35 hover:text-base-content/70"
+                  aria-label="YouTube"
+                >
+                  <BsYoutube size={15} />
+                </a>
+                <a
+                  href="https://www.instagram.com/psicologia_catolica/"
+                  className="btn btn-circle btn-ghost btn-sm text-base-content/35 hover:text-base-content/70"
+                  aria-label="Instagram"
+                >
+                  <BsInstagram size={15} />
                 </a>
               </div>
-              
-              <div className="md:w-1/3">
-                <div className="bg-primary/5 p-6 rounded-lg border border-primary/20">
-                  <div className="text-center mb-4">
-                    <span className="font-serif text-2xl text-primary">"</span>
-                    <p className="font-medium text-sm">
-                      O próximo módulo já está pronto e está <span className="text-primary font-semibold">simplesmente maravilhoso</span>!
-                    </p>
-                  </div>
-                  
-                  <div className="divider my-4">Acesse agora</div>
-                  
-                  <div className="flex justify-center">
-                    <img src="/images/qr-code.png" alt="QR Code WhatsApp" className="w-32 h-32 mb-2" />
-                  </div>
-                  <p className="text-center text-xs">Escaneie para contato</p>
-                </div>
-              </div>
-            </div>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* Footer - Elegant and simple */}
-      <footer className="bg-neutral text-neutral-content">
-        <div className="container mx-auto px-4 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="text-center md:text-left">
-              <h3 className="text-xl font-serif mb-2">Psicologia Católica Tradicional</h3>
-              <p className="text-sm opacity-75">restaurando a verdadeira psicologia à luz do tomismo</p>
-            </div>
-            
-            <div className="flex gap-6">              <a href="https://wa.me/5562821377" className="btn btn-circle btn-outline">
-                <BsWhatsapp size={20} />
-              </a>
-              <a href="https://www.youtube.com/c/PSICOLOGIACAT%C3%93LICATRADICIONAL" className="btn btn-circle btn-outline">
-                <BsYoutube className="w-5 h-5" />
-              </a>              <a href="https://www.instagram.com/psicologia_catolica/" className="btn btn-circle btn-outline">
-                <BsInstagram size={20} />
-              </a>
             </div>
           </div>
-          
-          <div className="divider my-8"></div>
-          
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm opacity-75">© {new Date().getFullYear()} - Todos os direitos reservados</p>
-            <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="/termos" className="text-xs opacity-75 hover:opacity-100">Termos de uso</a>
-              <a href="/privacidade" className="text-xs opacity-75 hover:opacity-100">Política de privacidade</a>
+
+          <div className="border-t border-base-content/8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-[0.6rem] text-base-content/25 tracking-wider">
+              © {new Date().getFullYear()} Psicologia Católica Tomista — Todos os direitos reservados
+            </p>
+            <div className="flex gap-6">
+              <a href="/termos" className="text-[0.6rem] text-base-content/25 hover:text-base-content/50 tracking-wider transition-colors">
+                Termos de uso
+              </a>
+              <a href="/privacidade" className="text-[0.6rem] text-base-content/25 hover:text-base-content/50 tracking-wider transition-colors">
+                Privacidade
+              </a>
             </div>
           </div>
         </div>

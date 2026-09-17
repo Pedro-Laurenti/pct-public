@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -21,11 +22,17 @@ export default function RegisterPage() {
 
   if (!OAUTH_ENABLED) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-base-content/60">Cadastro não disponível no momento.</p>
-          <Link href="/login" className="btn btn-primary btn-sm">Ir para o Login</Link>
-        </div>
+      <div className="h-screen flex flex-col items-center justify-center bg-base-200 px-4 overflow-hidden" data-theme="mydark">
+        <img src="/images/logo.svg" alt="" className="w-12 h-12 mb-6 opacity-85" />
+        <p className="font-display text-2xl text-center text-base-content mb-3">
+          Cadastro indisponível
+        </p>
+        <p className="text-sm text-base-content/40 mb-8 text-center max-w-xs">
+          O cadastro de novos usuários está desativado no momento.
+        </p>
+        <Link href="/login" className="btn btn-primary btn-sm tracking-wider">
+          Ir para o Login
+        </Link>
       </div>
     );
   }
@@ -54,7 +61,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redireciona via after-oauth para decidir checkout vs dashboard
       router.push("/api/auth/after-oauth");
     } catch {
       setError("Erro de conexão. Tente novamente.");
@@ -64,48 +70,77 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
-      <div className="card bg-base-100 shadow-md w-full max-w-md">
-        <div className="card-body space-y-4">
-          <h1 className="text-2xl font-bold text-center">Criar conta</h1>
+    <div className="flex h-screen overflow-hidden" data-theme="mydark">
+      {/* Painel do formulário */}
+      <div className="flex flex-col justify-center items-center w-full lg:w-5/12 bg-base-200 px-8 overflow-y-auto">
+        <div className="w-full max-w-sm py-6">
 
+          {/* Escudo */}
+          <div className="flex justify-center mb-4">
+            <img
+              src="/images/logo.svg"
+              alt="Psicologia Católica Tomista"
+              className="w-10 h-10 opacity-85"
+            />
+          </div>
+
+          {/* Título */}
+          <h1 className="font-display text-[2.5rem] text-center text-base-content leading-[1.15] mb-1">
+            Crie sua<br />
+            <span className="text-primary">conta</span>
+          </h1>
+
+          <p className="text-center text-base-content/40 text-[0.6rem] tracking-[0.25em] uppercase mb-4">
+            Psicologia Católica Tomista
+          </p>
+
+          {/* Divisor ornamental */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 border-t border-base-content/10" />
+            <span className="text-primary/40 text-[0.55rem]">✦</span>
+            <div className="flex-1 border-t border-base-content/10" />
+          </div>
+
+          {/* Erro */}
           {error && (
-            <div className="alert alert-error text-sm">
+            <div className="alert alert-error text-sm mb-4 py-2">
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label"><span className="label-text">Nome completo</span></label>
-              <input
-                className="input input-bordered w-full"
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Seu nome"
-                required
-                autoFocus
-              />
-            </div>
-
-            <div>
-              <label className="label"><span className="label-text">E-mail</span></label>
-              <input
-                className="input input-bordered w-full"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="label"><span className="label-text">Senha</span></label>
-              <div className="relative">
+          {/* Formulário */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1">
+              <span className="text-[0.65rem] text-base-content/40 uppercase tracking-[0.15em]">Nome completo</span>
+              <label className="input w-full">
                 <input
-                  className="input input-bordered w-full pr-10"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Seu nome"
+                  required
+                  autoFocus
+                />
+              </label>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[0.65rem] text-base-content/40 uppercase tracking-[0.15em]">E-mail</span>
+              <label className="input w-full">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  required
+                />
+              </label>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[0.65rem] text-base-content/40 uppercase tracking-[0.15em]">Senha</span>
+              <label className="input w-full">
+                <input
                   type={showPwd ? "text" : "password"}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -115,44 +150,75 @@ export default function RegisterPage() {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50"
                   onClick={() => setShowPwd(!showPwd)}
+                  className="text-base-content/30 hover:text-base-content/70 transition-colors"
                   tabIndex={-1}
                 >
                   {showPwd ? <FaEyeSlash /> : <FaEye />}
                 </button>
-              </div>
+              </label>
             </div>
 
-            <div>
-              <label className="label"><span className="label-text">Confirmar senha</span></label>
-              <input
-                className="input input-bordered w-full"
-                type={showPwd ? "text" : "password"}
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                placeholder="Repita a senha"
-                required
-              />
+            <div className="space-y-1">
+              <span className="text-[0.65rem] text-base-content/40 uppercase tracking-[0.15em]">Confirmar senha</span>
+              <label className="input w-full">
+                <input
+                  type={showPwd ? "text" : "password"}
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  placeholder="Repita a senha"
+                  required
+                />
+              </label>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary w-full tracking-wider mt-2"
+              disabled={loading}
+            >
               {loading ? <span className="loading loading-spinner loading-sm" /> : "Criar conta"}
             </button>
           </form>
 
-          <div className="divider text-xs text-base-content/40">ou</div>
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 border-t border-base-content/10" />
+            <span className="text-[0.6rem] text-base-content/25 uppercase tracking-wider">ou</span>
+            <div className="flex-1 border-t border-base-content/10" />
+          </div>
 
           <button
             className="btn btn-outline w-full gap-2"
             onClick={() => signIn("google")}
           >
-            <FaGoogle /> Continuar com Google
+            <FaGoogle size={14} /> Continuar com Google
           </button>
 
-          <p className="text-center text-sm text-base-content/60">
+          <p className="text-center text-xs text-base-content/35 mt-4">
             Já tem conta?{" "}
-            <Link href="/login" className="link link-primary">Fazer login</Link>
+            <Link href="/login" className="text-accent/70 hover:text-accent transition-colors">
+              Fazer login
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      {/* Painel da foto */}
+      <div className="hidden lg:block lg:w-7/12 relative overflow-hidden">
+        <Image
+          src="/images/2.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/10 to-transparent" />
+        <div className="absolute bottom-10 left-10 max-w-xs">
+          <p className="font-serif text-white/65 text-lg italic font-light leading-relaxed">
+            &ldquo;Conhece-te a ti mesmo e conhecerás<br />o universo e os deuses.&rdquo;
+          </p>
+          <p className="text-white/35 text-[0.6rem] mt-3 tracking-[0.2em] uppercase">
+            — Sócrates
           </p>
         </div>
       </div>

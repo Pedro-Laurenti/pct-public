@@ -3,27 +3,24 @@
 import { useEffect, useState } from 'react';
 import { FiSun, FiMoon } from 'react-icons/fi';
 
-export default function ThemeToggle() {
+interface Props {
+  size?: 'sm' | 'md';
+}
+
+export default function ThemeToggle({ size = 'md' }: Props) {
   const [currentTheme, setCurrentTheme] = useState<string>('mylight');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
-    // Get the current theme from localStorage or default to 'mylight'
     const savedTheme = localStorage.getItem('theme') || 'mylight';
     setCurrentTheme(savedTheme);
-    
-    // Import and initialize theme-change
     import('theme-change').then(({ themeChange }) => {
       themeChange(false);
-      
-      // Make sure the theme is applied on initial load
       document.documentElement.setAttribute('data-theme', savedTheme);
     });
   }, []);
 
-  // Handle manual theme toggle
   const toggleTheme = () => {
     const newTheme = currentTheme === 'mylight' ? 'mydark' : 'mylight';
     setCurrentTheme(newTheme);
@@ -31,23 +28,22 @@ export default function ThemeToggle() {
     localStorage.setItem('theme', newTheme);
   };
 
-  // To avoid hydration mismatch, only show the button after component mounts
   if (!mounted) {
-    return <div className="btn btn-square btn-ghost opacity-0" />;
+    return <div className={`btn btn-square btn-ghost opacity-0 ${size === 'sm' ? 'btn-sm' : ''}`} />;
   }
+
+  const iconCls = size === 'sm' ? 'w-4 h-4' : 'w-5 h-5';
+
   return (
-    <button 
-      className="btn btn-square btn-ghost p-2"
+    <button
+      className={`btn btn-square btn-ghost ${size === 'sm' ? 'btn-sm' : ''}`}
       onClick={toggleTheme}
-      aria-label="Toggle theme"
+      aria-label="Alternar tema"
+      title="Alternar tema"
     >
-      <div className="w-full h-full relative flex items-center justify-center">
-        {currentTheme === 'mydark' ? (
-          <FiSun className="h-6 w-6" />
-        ) : (
-          <FiMoon className="h-6 w-6" />
-        )}
-      </div>
+      {currentTheme === 'mydark'
+        ? <FiSun className={iconCls} />
+        : <FiMoon className={iconCls} />}
     </button>
   );
 }

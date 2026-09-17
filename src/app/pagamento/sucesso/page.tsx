@@ -12,11 +12,7 @@ export default function PagamentoSucesso() {
 
   useEffect(() => {
     const paymentStatus = searchParams.get("status");
-    if (paymentStatus === "approved") {
-      setStatus("approved");
-    } else {
-      setStatus("pending");
-    }
+    setStatus(paymentStatus === "approved" ? "approved" : "pending");
 
     const timer = setTimeout(() => {
       router.push("/dashboard");
@@ -26,34 +22,60 @@ export default function PagamentoSucesso() {
   }, [searchParams, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <div className="card bg-base-100 shadow-xl max-w-md w-full mx-4">
-        <div className="card-body items-center text-center gap-4">
-          {status === "loading" ? (
-            <FaSpinner className="text-5xl text-primary animate-spin" />
-          ) : status === "approved" ? (
-            <>
-              <FaCheckCircle className="text-5xl text-success" />
-              <h1 className="card-title text-2xl">Pagamento aprovado!</h1>
-              <p className="text-base-content/70">
-                Seu acesso ao curso foi liberado. Você será redirecionado em instantes.
-              </p>
-            </>
-          ) : (
-            <>
-              <FaSpinner className="text-5xl text-warning" />
-              <h1 className="card-title text-2xl">Pagamento em processamento</h1>
-              <p className="text-base-content/70">
-                Seu pagamento está sendo processado. Você receberá acesso assim que for confirmado.
-              </p>
-            </>
-          )}
+    <div className="min-h-screen flex items-center justify-center bg-base-100 px-4">
+      <div className="w-full max-w-sm border border-base-content/10 bg-base-200 p-10 text-center">
 
-          <div className="card-actions w-full pt-2">
-            <Link href="/dashboard" className="btn btn-primary w-full">
-              Ir para o Dashboard
-            </Link>
+        {/* Escudo */}
+        <div className="flex justify-center mb-6">
+          <img src="/images/logo.svg" alt="" className="w-10 h-10 opacity-80" />
+        </div>
+
+        {/* Divisor ornamental */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="flex-1 border-t border-base-content/10" />
+          <span className="text-accent/40 text-[0.6rem]">✦</span>
+          <div className="flex-1 border-t border-base-content/10" />
+        </div>
+
+        {status === "loading" && (
+          <div className="space-y-4">
+            <FaSpinner className="text-4xl text-primary animate-spin mx-auto" />
+            <p className="text-base-content/50 text-sm">Verificando pagamento...</p>
           </div>
+        )}
+
+        {status === "approved" && (
+          <div className="space-y-4">
+            <FaCheckCircle className="text-4xl text-success mx-auto" />
+            <h1 className="font-display text-3xl text-base-content leading-tight">
+              Pagamento<br />
+              <span className="text-success">aprovado</span>
+            </h1>
+            <p className="text-sm text-base-content/50 leading-relaxed">
+              Seu acesso ao curso foi liberado.<br />
+              Você será redirecionado em instantes.
+            </p>
+          </div>
+        )}
+
+        {status === "pending" && (
+          <div className="space-y-4">
+            <FaSpinner className="text-4xl text-warning mx-auto" />
+            <h1 className="font-display text-3xl text-base-content leading-tight">
+              Em<br />
+              <span className="text-warning">processamento</span>
+            </h1>
+            <p className="text-sm text-base-content/50 leading-relaxed">
+              Seu pagamento está sendo processado.<br />
+              Você receberá acesso assim que confirmado.
+            </p>
+          </div>
+        )}
+
+        <div className="mt-8">
+          <Link href="/dashboard" className="btn btn-primary w-full tracking-wider">
+            Ir para o Dashboard
+          </Link>
         </div>
       </div>
     </div>

@@ -213,7 +213,7 @@ export default function Dashboard() {
     <div className="p-6 space-y-8">
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-2xl font-bold">Dashboard Administrativo</h1>
+        <h1 className="font-display text-3xl">Painel Administrativo</h1>
         
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/users/new" className="btn btn-sm btn-primary flex items-center gap-2">

@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   FaCalendarAlt, FaHome, FaSignOutAlt, FaTasks, FaUser, FaClipboardList,
-  FaChevronLeft, FaChevronRight,
-} from 'react-icons/fa';
-import ThemeToggle from '@/components/ThemeToggle';
-import NotificationBell from '@/components/NotificationBell';
-import { BiMenu } from 'react-icons/bi';
-import { useRouter, usePathname } from 'next/navigation';
+  FaChevronLeft, FaChevronRight, FaBars, FaTimes,
+} from "react-icons/fa";
+import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
+
+import { useRouter, usePathname } from "next/navigation";
+import packageJson from "@/../package.json";
 
 interface User {
   id: number;
@@ -19,13 +20,14 @@ interface User {
 
 export default function ClientDashboardLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const sessionExpiredRef = useRef(false);
 
+  // Intercepta 401 globalmente
   useEffect(() => {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
@@ -39,20 +41,16 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
     return () => { window.fetch = originalFetch; };
   }, []);
 
+  // Carrega dados do usuário (só para tooltip do botão de perfil)
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/auth/validate');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados do usuário:', error);
-      }
-    };
-    fetchUserData();
+    fetch("/api/auth/validate")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setUser(d.user))
+      .catch(() => {});
   }, []);
+
+  // Fecha sidebar mobile ao navegar
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   const menuItems = [
     { icon: <FaHome />,          label: "Início",       link: "/dashboard",            exact: true  },
@@ -70,9 +68,9 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
         <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Sessão Expirada</h3>
-            <p className="py-4">Sua sessão expirou. Por favor, faça login novamente para continuar.</p>
+            <p className="py-4">Sua sessão expirou. Faça login novamente para continuar.</p>
             <div className="modal-action">
-              <button className="btn btn-primary" onClick={() => router.replace('/login')}>
+              <button className="btn btn-primary" onClick={() => router.replace("/login")}>
                 Ir para o Login
               </button>
             </div>
@@ -80,136 +78,141 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
         </dialog>
       )}
 
-      <div className="drawer lg:drawer-open">
-        <input
-          id="drawer-toggle"
-          type="checkbox"
-          className="drawer-toggle"
-          checked={isMenuOpen}
-          onChange={() => setIsMenuOpen(!isMenuOpen)}
-        />
+      <div className="flex h-screen overflow-hidden">
+        {/* Overlay mobile */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-        {/* Conteúdo principal */}
-        <div className="drawer-content flex flex-col">
-          {/* Navbar — somente mobile */}
-          <div className="navbar bg-base-100 shadow-md lg:hidden">
-            <div className="flex-none">
-              <label htmlFor="drawer-toggle" className="btn btn-square btn-ghost drawer-button p-3">
-                <BiMenu className="w-7 h-7" />
-              </label>
+        {/* ── Sidebar ── */}
+        <aside className={`
+          fixed lg:static inset-y-0 left-0 z-30 flex flex-col
+          bg-base-200 border-r border-base-300
+          transition-all duration-200
+          ${collapsed ? "lg:w-14" : "lg:w-56"}
+          w-56
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}>
+
+          {/* Cabeçalho */}
+          <div className={`flex items-center px-3 py-4 border-b border-base-content/8 ${collapsed ? "lg:justify-center" : "justify-between"}`}>
+            <div className={`flex items-center gap-2 min-w-0 ${collapsed ? "lg:hidden" : ""}`}>
+              <img src="/images/logo_mini.svg" alt="" className="w-5 h-5 shrink-0" />
+              <span className="font-serif text-sm font-semibold tracking-wide truncate text-base-content/80">
+                Portal do Aluno
+              </span>
             </div>
-            <div className="flex-1">
-              <span className="btn btn-ghost text-xl px-3">Portal do Aluno</span>
-            </div>
-            <div className="flex-none flex items-center gap-1">
-              <ThemeToggle />
-              <NotificationBell />
-              <div className="dropdown dropdown-end">
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle bg-primary text-primary-content rounded-full w-12 h-12 text-lg ml-2">
-                  <span>{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
-                </div>
-                <ul tabIndex={0} className="menu dropdown-content mt-3 z-[1] p-3 shadow bg-base-100 rounded-box w-64">
-                  <li className="my-1">
-                    <Link href="/dashboard/profile" className="py-3 text-base flex items-center">
-                      <FaUser className="mr-2" /> Perfil
-                    </Link>
-                  </li>
-                  <li className="my-1">
-                    <Link href="/logout" className="py-3 text-base flex items-center">
-                      <FaSignOutAlt className="mr-2" /> Sair
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            {collapsed && (
+              <img src="/images/logo_mini.svg" alt="" className="w-5 h-5 hidden lg:block" />
+            )}
+            {/* Fechar — mobile */}
+            <button
+              className="btn btn-ghost btn-sm btn-square lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <FaTimes className="w-4 h-4" />
+            </button>
+            {/* Colapsar — desktop */}
+            <button
+              className="btn btn-ghost btn-sm btn-square hidden lg:flex text-base-content/40 hover:text-base-content"
+              onClick={() => setCollapsed(v => !v)}
+              title={collapsed ? "Expandir" : "Recolher"}
+            >
+              {collapsed
+                ? <FaChevronRight className="w-3 h-3" />
+                : <FaChevronLeft className="w-3 h-3" />}
+            </button>
           </div>
 
-          <div>{children}</div>
-        </div>
+          {/* Navegação */}
+          <nav className="flex flex-col grow py-2">
+            {menuItems.map((item) => {
+              const active = isActive(item.link, item.exact);
+              return (
+                <Link
+                  key={item.link}
+                  href={item.link}
+                  title={item.label}
+                  className={`
+                    flex items-center gap-3 py-2.5 transition-colors
+                    ${collapsed
+                      ? "lg:justify-center lg:mx-1.5 lg:px-0 lg:rounded-sm px-3"
+                      : "px-3 border-l-2"}
+                    ${active
+                      ? collapsed
+                        ? "lg:bg-primary/12 lg:border-0 text-primary font-semibold border-l-2 border-primary bg-primary/8"
+                        : "border-primary bg-primary/8 text-primary font-semibold"
+                      : collapsed
+                        ? "lg:border-0 border-l-2 border-transparent text-base-content/55 hover:bg-base-300/70 hover:text-base-content"
+                        : "border-transparent text-base-content/55 hover:bg-base-300/70 hover:text-base-content hover:border-base-content/15"}
+                  `}
+                >
+                  <span className="text-sm shrink-0">{item.icon}</span>
+                  <span className={`text-sm ${collapsed ? "lg:hidden" : ""}`}>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Sidebar */}
-        <div className="drawer-side z-10">
-          <label htmlFor="drawer-toggle" aria-label="close sidebar" className="drawer-overlay" />
-
+          {/* Rodapé */}
           <div className={`
-            flex flex-col min-h-full bg-base-100 border-r border-base-200 text-base-content
-            transition-all duration-200
-            w-64 p-4
-            ${collapsed ? "lg:w-16 lg:p-2" : "lg:w-64 lg:p-4"}
+            border-t border-base-content/8 px-2 py-3
+            ${collapsed ? "lg:flex-col flex-row" : "flex-row"}
+            flex items-center gap-1
           `}>
-
-            {/* Cabeçalho */}
-            <div className={`flex items-center mb-6 ${collapsed ? "lg:justify-center" : "justify-between"}`}>
-              {!collapsed && (
-                <span className="text-lg font-bold truncate">Portal do Aluno</span>
-              )}
-              <button
-                onClick={() => setCollapsed(!collapsed)}
-                className="btn btn-ghost btn-sm btn-square hidden lg:flex shrink-0"
-                title={collapsed ? "Expandir" : "Recolher"}
+            {/* Versão — só quando expandida */}
+            {!collapsed && (
+              <Link
+                href="/dashboard/changelog"
+                className="text-[0.55rem] text-base-content/25 hover:text-primary/60 transition-colors tracking-widest mr-auto"
+                title="Novidades"
               >
-                {collapsed
-                  ? <FaChevronRight className="w-3 h-3" />
-                  : <FaChevronLeft className="w-3 h-3" />}
-              </button>
+                v{packageJson.version}
+              </Link>
+            )}
+
+            <ThemeToggle size="sm" />
+            <button
+              onClick={() => router.push("/dashboard/profile")}
+              className={`btn btn-ghost btn-sm btn-square ${isActive("/dashboard/profile", true) ? "text-primary" : "text-base-content/40 hover:text-base-content"}`}
+              title={user ? `${user.name} — Perfil` : "Perfil"}
+            >
+              <FaUser className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => router.push("/logout")}
+              className="btn btn-ghost btn-sm btn-square text-error/50 hover:text-error"
+              title="Sair"
+            >
+              <FaSignOutAlt className="w-4 h-4" />
+            </button>
+          </div>
+        </aside>
+
+        {/* ── Conteúdo ── */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Navbar mobile */}
+          <div className="lg:hidden flex items-center px-4 py-3 bg-base-100 border-b border-base-300 shrink-0">
+            <button
+              className="btn btn-ghost btn-sm btn-square"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <FaBars className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-2 ml-3">
+              <img src="/images/logo_mini.svg" alt="" className="w-5 h-5" />
+              <span className="font-serif text-sm font-semibold tracking-wide">Portal do Aluno</span>
             </div>
-
-            {/* Perfil */}
-            <div className={`flex items-center gap-3 mb-6 ${collapsed ? "lg:justify-center" : ""}`}>
-              <div
-                className="bg-primary text-primary-content rounded-full w-9 h-9 shrink-0 flex items-center justify-center font-bold"
-                title={user?.name || ''}
-              >
-                {user?.name?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className={`overflow-hidden transition-all duration-200 ${collapsed ? "lg:hidden" : ""}`}>
-                <div className="font-medium truncate">{user?.name || 'Carregando...'}</div>
-                <div className="text-xs opacity-50 truncate">{user?.email || ''}</div>
-              </div>
-            </div>
-
-            {/* Navegação */}
-            <ul className="space-y-1 flex-grow">
-              {menuItems.map((item, index) => (
-                <li key={index}>
-                  <Link
-                    href={item.link}
-                    title={collapsed ? item.label : undefined}
-                    className={`
-                      flex items-center gap-3 p-2 rounded-lg hover:bg-base-300 transition-colors
-                      ${collapsed ? "lg:justify-center" : ""}
-                      ${isActive(item.link, item.exact) ? "bg-primary/10 text-primary font-semibold" : ""}
-                    `}
-                  >
-                    <span className="text-lg shrink-0">{item.icon}</span>
-                    <span className={`text-base transition-all duration-200 ${collapsed ? "lg:hidden" : ""}`}>
-                      {item.label}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            {/* Rodapé — somente ícones */}
-            <div className={`mt-6 pt-4 border-t border-base-300 flex items-center gap-1 ${collapsed ? "lg:flex-col lg:gap-2" : "justify-between"}`}>
-              <button
-                onClick={() => router.push('/logout')}
-                className="btn btn-ghost btn-sm btn-square text-error"
-                title="Sair"
-              >
-                <FaSignOutAlt className="w-4 h-4" />
-              </button>
+            <div className="ml-auto flex items-center gap-1">
               <NotificationBell />
-              <ThemeToggle />
-              <button
-                onClick={() => router.push('/dashboard/profile')}
-                className="btn btn-ghost btn-sm btn-square"
-                title="Perfil"
-              >
-                <FaUser className="w-4 h-4" />
-              </button>
+              <ThemeToggle size="sm" />
             </div>
           </div>
+
+          <div className="flex-1 overflow-y-auto">{children}</div>
         </div>
       </div>
     </>

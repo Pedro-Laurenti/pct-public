@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaTimes, FaFilter } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaTimes, FaFilter, FaMoneyBillWave } from "react-icons/fa";
 import { SlOptionsVertical } from "react-icons/sl";
 import Alert from "@/components/Alert";
 import LoadingOrError from "@/components/LoadingOrError";
@@ -30,6 +30,13 @@ export default function UsersPage() {
     const [error, setError] = useState<string | null>(null);
     const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+    // Pagamento manual
+    const [userForPayment, setUserForPayment] = useState<User | null>(null);
+    const [paymentCourses, setPaymentCourses] = useState<{ id: number; name: string; price: number }[]>([]);
+    const [paymentCourseId, setPaymentCourseId] = useState<string>("");
+    const [paymentAmount, setPaymentAmount] = useState<string>("0.00");
+    const [savingPayment, setSavingPayment] = useState(false);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [total, setTotal] = useState(0);
@@ -127,6 +134,46 @@ export default function UsersPage() {
         } else {
             setSortColumn(column);
             setSortDirection("asc");
+        }
+    };
+
+    const openPaymentModal = async (user: User) => {
+        setUserForPayment(user);
+        setPaymentCourseId("");
+        setPaymentAmount("0.00");
+        if (paymentCourses.length === 0) {
+            const res = await fetch("/api/admin/payments");
+            const data = await res.json();
+            setPaymentCourses(data.courses || []);
+        }
+        (document.getElementById("payment_modal") as HTMLDialogElement)?.showModal();
+    };
+
+    const handleRegisterPayment = async () => {
+        if (!userForPayment || !paymentCourseId) return;
+        setSavingPayment(true);
+        try {
+            const res = await fetch("/api/admin/payments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: userForPayment.id,
+                    courseId: Number(paymentCourseId),
+                    amount: parseFloat(paymentAmount) || 0,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setAlert({ type: "error", message: data.message || "Erro ao registrar pagamento." });
+            } else {
+                setAlert({ type: "success", message: `Acesso de ${userForPayment.name} registrado com sucesso.` });
+                (document.getElementById("payment_modal") as HTMLDialogElement)?.close();
+            }
+        } catch {
+            setAlert({ type: "error", message: "Erro de conexão." });
+        } finally {
+            setSavingPayment(false);
+            setUserForPayment(null);
         }
     };
 
@@ -341,6 +388,14 @@ export default function UsersPage() {
                                             </li>
                                             <li>
                                                 <button
+                                                    className="flex items-center gap-2 text-success"
+                                                    onClick={() => openPaymentModal(user)}
+                                                >
+                                                    <FaMoneyBillWave /> Registrar Pagamento
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
                                                     className="flex items-center gap-2 text-error"
                                                     onClick={() => setUserToDelete(user)}
                                                 >
@@ -356,6 +411,69 @@ export default function UsersPage() {
                 </table>
             </div>
             
+            {/* Modal: Registrar Pagamento Manual */}
+            <dialog id="payment_modal" className="modal modal-bottom sm:modal-middle">
+                <div className="modal-box">
+                    <h3 className="font-bold text-lg mb-1">Registrar Pagamento Manual</h3>
+                    {userForPayment && (
+                        <p className="text-sm text-base-content/60 mb-4">
+                            Aluno: <span className="font-semibold text-base-content">{userForPayment.name}</span>
+                        </p>
+                    )}
+
+                    <div className="form-control mb-3">
+                        <label className="label">
+                            <span className="label-text">Curso</span>
+                        </label>
+                        <select
+                            className="select select-bordered w-full"
+                            value={paymentCourseId}
+                            onChange={(e) => {
+                                setPaymentCourseId(e.target.value);
+                                const course = paymentCourses.find(c => c.id === Number(e.target.value));
+                                if (course) setPaymentAmount(course.price.toFixed(2));
+                            }}
+                        >
+                            <option value="">Selecione um curso...</option>
+                            {paymentCourses.map(c => (
+                                <option key={c.id} value={c.id}>
+                                    {c.name} {c.price > 0 ? `— R$ ${Number(c.price).toFixed(2)}` : "— Gratuito"}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-control mb-4">
+                        <label className="label">
+                            <span className="label-text">Valor pago (R$)</span>
+                            <span className="label-text-alt text-base-content/40">0.00 = acesso manual / cortesia</span>
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            className="input input-bordered w-full"
+                            value={paymentAmount}
+                            onChange={e => setPaymentAmount(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="modal-action">
+                        <form method="dialog">
+                            <button className="btn" onClick={() => setUserForPayment(null)}>Cancelar</button>
+                        </form>
+                        <button
+                            className="btn btn-success"
+                            disabled={!paymentCourseId || savingPayment}
+                            onClick={handleRegisterPayment}
+                        >
+                            {savingPayment ? <span className="loading loading-spinner loading-sm" /> : "Registrar Acesso"}
+                        </button>
+                    </div>
+                </div>
+                <div className="modal-backdrop" onClick={() => { (document.getElementById("payment_modal") as HTMLDialogElement)?.close(); setUserForPayment(null); }} />
+            </dialog>
+
             {/* Delete confirmation modal */}
             {userToDelete && (
                 <dialog id="delete_modal" className="modal modal-bottom sm:modal-middle" open>

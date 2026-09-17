@@ -179,7 +179,7 @@ function UserHeader({ data, overallProgress, completedActivities, totalActivitie
 
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <h1 className="text-3xl md:text-4xl font-bold">Olá, {data.user.name.split(' ')[0]}!</h1>
+            <h1 className="font-display text-3xl md:text-4xl">Olá, {data.user.name.split(' ')[0]}!</h1>
             <div className="badge badge-lg badge-primary">
               {data.user.role === 'student' ? (
                 <span className="flex items-center gap-1"><FaUserGraduate /> Aluno</span>
@@ -188,8 +188,8 @@ function UserHeader({ data, overallProgress, completedActivities, totalActivitie
               )}
             </div>
           </div>
-          <p className="py-2 text-md md:text-lg text-base-content/80">
-            Seja bem-vindo(a) à sua área de estudos. Continue acompanhando seus cursos e atividades.
+          <p className="py-2 text-sm md:text-base text-base-content/55 leading-relaxed">
+            Continue sua jornada de formação em Psicologia Católica Tomista.
           </p>
 
           <div className="stats stats-vertical md:stats-horizontal shadow mt-2">
