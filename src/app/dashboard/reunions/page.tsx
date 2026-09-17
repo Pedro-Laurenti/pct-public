@@ -302,11 +302,11 @@ export default function ReunionsPage() {
       <div className="flex flex-col gap-2 md:gap-4">
         {/* Cabeçalho principal */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl md:text-2xl font-bold">Calendário de Reuniões</h1>
+          <h1 className="font-display text-xl md:text-2xl">Calendário de Reuniões</h1>
         </div>
 
         {/* Barra de controles do calendário */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 p-2 md:p-4 bg-base-200 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 p-2 md:p-4 bg-base-200 border-b border-base-content/8">
           {/* Navegação calendário */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
             <button
@@ -335,7 +335,7 @@ export default function ReunionsPage() {
             </button>
             <button 
                 onClick={viewMode === "week" ? goToCurrentWeek : goToCurrentMonth} 
-                className="btn btn-xs md:btn-sm bg-base-100"
+                className="btn btn-outline btn-xs md:btn-sm"
               >
                <CgTime className="mr-1 hidden sm:inline-block" /> hoje
             </button>
@@ -363,9 +363,9 @@ export default function ReunionsPage() {
         {viewMode === "week" ? (
         <>
           {/* Layout da visualização semanal */}
-          <div className="overflow-auto h-full relative bg-base-100 rounded-lg shadow-sm">
+          <div className="overflow-auto h-full relative bg-base-100 border border-base-content/8">
             {/* Seletor de dias para telas pequenas (visível apenas em mobile) */}
-            <div className="md:hidden flex overflow-x-auto bg-base-100 sticky top-0 z-20 border-b border-base-200 shadow-sm">
+            <div className="md:hidden flex overflow-x-auto bg-base-100 sticky top-0 z-20 border-b border-base-content/8">
               {getDaysInWeek().map((dayInfo, index) => (
                 <button 
                   key={`mobile-day-${index}`}
@@ -400,15 +400,15 @@ export default function ReunionsPage() {
             >
               <div className="flex items-center w-full">
                 <div className="w-12 md:w-20 pr-2 text-right">
-                  <span className="text-xs font-medium text-error bg-base-100 px-1 py-0.5 rounded shadow-sm">
+                  <span className="text-xs font-medium text-primary bg-base-100 px-1 py-0.5">
                     {currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </span>
                 </div>
-                <div className="h-[2px] bg-error flex-grow" />
+                <div className="h-[2px] bg-primary flex-grow" />
               </div>
             </div>            {/* Tabela de calendário (visível apenas em desktop) */}
             <table className="hidden md:table w-full relative border-collapse table-fixed">
-              <thead className="sticky top-0 bg-base-100 z-20 shadow-sm">
+              <thead className="sticky top-0 bg-base-100 z-20 border-b border-base-content/8">
                 <tr>
                   <th className="w-12 md:w-20 bg-base-200 p-1 md:p-3 text-xs md:text-sm">Horário</th>
                   {getDaysInWeek().map((dayInfo, index) => (
@@ -454,8 +454,7 @@ export default function ReunionsPage() {
                               {hoursReunions.map(reunion => (
                                 <div 
                                   key={reunion.id} 
-                                  className="p-1 md:p-1.5 px-2 bg-primary text-primary-content rounded text-xs shadow-sm
-                                    w-full block overflow-hidden text-ellipsis cursor-pointer hover:shadow-md transition-all"
+                                  className="p-1 md:p-1.5 px-2 bg-primary text-primary-content text-xs w-full block overflow-hidden text-ellipsis cursor-pointer hover:bg-primary/80 transition-colors"
                                   title={`${reunion.reunion_title} (${formatTime(reunion.scheduled_time)} - ${reunion.duration_minutes} min)`}
                                   onClick={() => {
                                     setSelectedDate(dayInfo.dateString);
@@ -490,7 +489,7 @@ export default function ReunionsPage() {
                       {dayInfo.reunions.map(reunion => (
                         <div 
                           key={reunion.id} 
-                          className="p-3 bg-base-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+                          className="p-3 bg-base-200 border border-base-content/8 cursor-pointer"
                           onClick={() => {
                             setSelectedDate(dayInfo.dateString);
                             setSelectedReunions([reunion]);
@@ -512,7 +511,7 @@ export default function ReunionsPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-base-content/60">
+                    <div className="text-center py-6 text-base-content/50">
                       <p>Nenhuma reunião agendada para hoje</p>
                       <button 
                         className="btn btn-xs btn-link mt-2"
@@ -567,14 +566,14 @@ export default function ReunionsPage() {
         </>      ) : (
         <>
           {/* Grid do calendário mensal com design melhorado */}
-          <div className="bg-base-100 rounded-lg shadow-sm overflow-hidden h-full m-0">
+          <div className="bg-base-100 border border-base-content/8 overflow-hidden h-full m-0">
             {/* Cabeçalhos dos dias da semana */}
             <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
               {weekdayNames.map((day, i) => (
                 <div key={`header-${i}`} className="p-1 md:p-3 text-center font-medium text-xs md:text-sm">
                   {/* Em telas muito pequenas, mostrar apenas a primeira letra */}
-                  <span className="xs:hidden">{day.charAt(0)}</span>
-                  <span className="hidden xs:inline">{day}</span>
+                  <span className="sm:hidden">{day.charAt(0)}</span>
+                  <span className="hidden sm:inline">{day}</span>
                 </div>
               ))}
             </div>
@@ -615,8 +614,7 @@ export default function ReunionsPage() {
                         {dayInfo.reunions.slice(0, isMobile ? 1 : 3).map((r: Reunion) => (
                           <div
                             key={r.id}
-                            className="text-[10px] md:text-xs p-0.5 md:p-1 px-1 md:px-2 bg-primary/80 text-primary-content rounded-md
-                              whitespace-nowrap overflow-hidden text-ellipsis hover:bg-primary transition-colors"
+                            className="text-xs p-0.5 md:p-1 px-1 md:px-2 bg-primary/80 text-primary-content whitespace-nowrap overflow-hidden text-ellipsis hover:bg-primary transition-colors"
                             title={`${r.reunion_title} (${formatTime(r.scheduled_time)})`}
                             onClick={() => {
                               setSelectedDate(dayInfo.dateString);
@@ -633,7 +631,7 @@ export default function ReunionsPage() {
                         
                         {dayInfo.reunions.length > (isMobile ? 1 : 3) && (
                           <div 
-                            className="text-[10px] md:text-xs text-primary font-medium pl-1 md:pl-2 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
+                            className="text-xs text-primary font-medium pl-1 md:pl-2 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
                             onClick={() => {
                               setSelectedDate(dayInfo.dateString);
                               setSelectedReunions(dayInfo.reunions);
@@ -673,7 +671,7 @@ export default function ReunionsPage() {
           ) : (
             <div className="space-y-3 md:space-y-4 max-h-[60vh] overflow-y-auto pr-1 md:pr-2">
               {selectedReunions.map((reunion) => (
-                <div key={reunion.id} className="card bg-base-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div key={reunion.id} className="card bg-base-200 overflow-hidden border border-base-content/8">
                   <div className="card-body p-3 md:p-4">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
                       <div>

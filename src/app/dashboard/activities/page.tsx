@@ -35,12 +35,12 @@ export default function ActivitiesPage() {
         <Link href="/dashboard" className="btn btn-ghost btn-circle btn-sm">
           <FaArrowLeft />
         </Link>
-        <h1 className="text-2xl font-bold">Minhas Atividades</h1>
+        <h1 className="font-display text-2xl">Minhas Atividades</h1>
       </div>
 
       {activities.length === 0 ? (
         <div className="card bg-base-200 p-8 text-center">
-          <p className="text-base-content/60">Nenhuma atividade respondida ainda.</p>
+          <p className="text-base-content/50">Nenhuma atividade respondida ainda.</p>
           <Link href="/dashboard/lessons" className="btn btn-primary btn-sm mt-4 self-center mx-auto w-fit">
             Ver Aulas
           </Link>
@@ -54,7 +54,7 @@ export default function ActivitiesPage() {
             const completed = activity.answered_questions >= activity.total_questions;
 
             return (
-              <div key={activity.content_id} className="card bg-base-100 shadow border border-base-200">
+              <div key={activity.content_id} className="card bg-base-100 border border-base-content/8">
                 <div className="card-body gap-3">
                   <div className="flex items-start justify-between">
                     <div>
@@ -83,8 +83,8 @@ export default function ActivitiesPage() {
                   </div>
 
                   {!completed && (
-                    <p className="text-xs text-warning">
-                      {activity.answered_questions}/{activity.total_questions} respondidas
+                    <p className="mt-1">
+                      <span className="badge badge-sm badge-warning">{activity.answered_questions}/{activity.total_questions} respondidas</span>
                     </p>
                   )}
 

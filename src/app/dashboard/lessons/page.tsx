@@ -76,13 +76,13 @@ function LessonsContent() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
+      <h1 className="font-display text-2xl mb-6 flex items-center gap-2">
         <FaGraduationCap className="text-primary" />
         Minhas Aulas
       </h1>
 
       {courses.length === 0 ? (
-        <div className="card bg-base-100 shadow-sm p-8 text-center">
+        <div className="card bg-base-100 border border-base-content/8 p-8 text-center">
           <p className="text-xl font-medium">Voce ainda nao esta inscrito em nenhum curso.</p>
           <p className="text-base-content/70 mt-2">
             Entre em contato com a coordenacao para ser adicionado a um curso.
@@ -91,14 +91,14 @@ function LessonsContent() {
       ) : (
         <div className="space-y-6">
           {courses.map((course) => (
-            <div key={course.id} className="card bg-base-100 shadow-sm">
+            <div key={course.id} className="card bg-base-100 border border-base-content/8">
               <div className="card-body p-5">
                 <div
                   className="flex items-center justify-between cursor-pointer"
                   onClick={() => toggleCourse(course.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="p-3 bg-primary/10 rounded-lg text-primary">
+                    <div className="p-3 bg-primary/10 text-primary">
                       <FaBook className="text-xl" />
                     </div>
                     <div>
@@ -109,22 +109,22 @@ function LessonsContent() {
                         <div className="mt-2 flex flex-wrap gap-2">
                           {course.progress.contentCounts.texts > 0 && (
                             <span className="badge badge-sm badge-outline gap-1">
-                              <FaFileAlt className="text-green-500" /> {course.progress.contentCounts.texts} {course.progress.contentCounts.texts === 1 ? 'texto' : 'textos'}
+                              <FaFileAlt className="text-success" /> {course.progress.contentCounts.texts} {course.progress.contentCounts.texts === 1 ? 'texto' : 'textos'}
                             </span>
                           )}
                           {course.progress.contentCounts.videos > 0 && (
                             <span className="badge badge-sm badge-outline gap-1">
-                              <FaVideo className="text-blue-500" /> {course.progress.contentCounts.videos} {course.progress.contentCounts.videos === 1 ? 'video' : 'videos'}
+                              <FaVideo className="text-info" /> {course.progress.contentCounts.videos} {course.progress.contentCounts.videos === 1 ? 'video' : 'videos'}
                             </span>
                           )}
                           {course.progress.contentCounts.activities > 0 && (
                             <span className="badge badge-sm badge-outline gap-1">
-                              <FaTasks className="text-orange-500" /> {course.progress.contentCounts.activities} {course.progress.contentCounts.activities === 1 ? 'atividade' : 'atividades'}
+                              <FaTasks className="text-warning" /> {course.progress.contentCounts.activities} {course.progress.contentCounts.activities === 1 ? 'atividade' : 'atividades'}
                             </span>
                           )}
                           {course.progress.contentCounts.reunions > 0 && (
                             <span className="badge badge-sm badge-outline gap-1">
-                              <FaUsers className="text-purple-500" /> {course.progress.contentCounts.reunions} {course.progress.contentCounts.reunions === 1 ? 'reuniao' : 'reunioes'}
+                              <FaUsers className="text-secondary" /> {course.progress.contentCounts.reunions} {course.progress.contentCounts.reunions === 1 ? 'reuniao' : 'reunioes'}
                             </span>
                           )}
                         </div>
@@ -136,12 +136,7 @@ function LessonsContent() {
                     <div className="hidden md:flex flex-col items-end">
                       <div className="flex items-center gap-2">
                         <div className="text-sm font-medium">Progresso: {course.progress.progressPercentage}%</div>
-                        <div className="w-20 h-2 bg-base-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary"
-                            style={{ width: `${course.progress.progressPercentage}%` }}
-                          />
-                        </div>
+                        <progress className="progress progress-primary w-20" value={course.progress.progressPercentage} max={100} />
                       </div>
                       <div className="text-xs text-base-content/70 mt-1">
                         {course.progress.completedActivities} de {course.progress.totalActivities} atividades
@@ -167,7 +162,7 @@ function LessonsContent() {
                           <Link
                             href={`/dashboard/lessons/${lesson.id}`}
                             key={lesson.id}
-                            className="block p-3 bg-base-200/50 hover:bg-base-200 rounded-lg transition-colors"
+                            className="block p-3 bg-base-200/50 hover:bg-base-200 transition-colors"
                           >
                             <div className="flex justify-between items-center">
                               <div>

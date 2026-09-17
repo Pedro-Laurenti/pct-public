@@ -88,15 +88,15 @@ export default function LessonPage() {
   const getContentIcon = (contentType: string) => {
     switch (contentType) {
       case "video":
-        return <FaVideo className="text-blue-500" />;
+        return <FaVideo className="text-info" />;
       case "text":
-        return <FaFileAlt className="text-green-500" />;
+        return <FaFileAlt className="text-success" />;
       case "activity":
-        return <FaTasks className="text-orange-500" />;
+        return <FaTasks className="text-warning" />;
       case "reunion":
-        return <FaUsers className="text-purple-500" />;
+        return <FaUsers className="text-secondary" />;
       default:
-        return <FaFileAlt className="text-gray-500" />;
+        return <FaFileAlt className="text-base-content/40" />;
     }
   };
 
@@ -144,30 +144,30 @@ export default function LessonPage() {
               </ul>
             </div>
 
-            <h1 className="text-2xl font-bold mt-4">{lesson.title}</h1>
+            <h1 className="font-display text-2xl mt-4">{lesson.title}</h1>
             <p className="mt-2 text-base-content/80">{lesson.lesson_description}</p>
             
             {/* Resumo dos conteúdos */}
-            <div className="mt-4 bg-base-200 p-3 rounded-lg">
+            <div className="mt-4 bg-base-200 p-3">
               <div className="flex flex-wrap gap-3">
                 {contentSummary.texts > 0 && (
-                  <div className="badge badge-outline gap-1 py-3">
-                    <FaFileAlt className="text-green-500" /> {contentSummary.texts} {contentSummary.texts === 1 ? 'texto' : 'textos'}
+                  <div className="badge badge-lg badge-outline gap-1">
+                    <FaFileAlt className="text-success" /> {contentSummary.texts} {contentSummary.texts === 1 ? 'texto' : 'textos'}
                   </div>
                 )}
                 {contentSummary.videos > 0 && (
-                  <div className="badge badge-outline gap-1 py-3">
-                    <FaVideo className="text-blue-500" /> {contentSummary.videos} {contentSummary.videos === 1 ? 'vídeo' : 'vídeos'}
+                  <div className="badge badge-lg badge-outline gap-1">
+                    <FaVideo className="text-info" /> {contentSummary.videos} {contentSummary.videos === 1 ? 'vídeo' : 'vídeos'}
                   </div>
                 )}
                 {contentSummary.activities > 0 && (
-                  <div className="badge badge-outline gap-1 py-3">
-                    <FaTasks className="text-orange-500" /> {contentSummary.activities} {contentSummary.activities === 1 ? 'atividade' : 'atividades'}
+                  <div className="badge badge-lg badge-outline gap-1">
+                    <FaTasks className="text-warning" /> {contentSummary.activities} {contentSummary.activities === 1 ? 'atividade' : 'atividades'}
                   </div>
                 )}
                 {contentSummary.reunions > 0 && (
-                  <div className="badge badge-outline gap-1 py-3">
-                    <FaUsers className="text-purple-500" /> {contentSummary.reunions} {contentSummary.reunions === 1 ? 'reunião' : 'reuniões'}
+                  <div className="badge badge-lg badge-outline gap-1">
+                    <FaUsers className="text-secondary" /> {contentSummary.reunions} {contentSummary.reunions === 1 ? 'reunião' : 'reuniões'}
                   </div>
                 )}
                 {(contentSummary.texts + contentSummary.videos + contentSummary.activities + contentSummary.reunions) === 0 && (
@@ -189,7 +189,7 @@ export default function LessonPage() {
               {contents.map((content) => (
                 <div
                   key={content.id}
-                  className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  className="card bg-base-100 border border-base-content/8 cursor-pointer hover:bg-base-200/50 transition-colors"
                   onClick={() => navigateToContent(content.id, content.content_type)}
                 >
                   <div className="card-body p-4">
